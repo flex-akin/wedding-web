@@ -1,0 +1,113 @@
+export interface PlusOne {
+  name: string;
+}
+
+export interface Guest {
+  _id: string;
+  name: string;
+  slug: string;
+  partySize: number;
+  phone?: string;
+  email?: string;
+  rsvpStatus: "pending" | "attending" | "declined";
+  mealChoice?: string;
+  plusOnes: PlusOne[];
+  notes?: string;
+  respondedAt?: string;
+  createdAt: string;
+}
+
+export interface AsoEbiOrder {
+  _id: string;
+  guestName: string;
+  contact: string;
+  color: string;
+  fabric: string;
+  size: string;
+  quantity: number;
+  notes?: string;
+  status: "pending" | "paid";
+  paymentMethod: "manual" | "paystack";
+  paystackReference?: string;
+  createdAt: string;
+}
+
+export interface Photo {
+  _id: string;
+  url: string;
+  uploadedBy?: string;
+  approved: boolean;
+  likedBy: string[];
+  challengeTag: "groomsmen" | "bridal-team" | "parents" | null;
+  createdAt: string;
+}
+
+export interface VenueInfo {
+  name: string;
+  address: string;
+  mapsUrl: string;
+  time: string;
+  lat?: number;
+  lng?: number;
+}
+
+export interface GiftAccount {
+  label: string;
+  accountName: string;
+  accountNumber: string;
+  bankName: string;
+}
+
+export interface ColorOfDay {
+  label: string;
+  hex: string;
+}
+
+export interface ProgramEvent {
+  name: string;
+  time: string;
+  note: string;
+  colors: ColorOfDay[];
+}
+
+export interface Settings {
+  partnerOneName: string;
+  partnerTwoName: string;
+  weddingDate?: string;
+  rsvpDeadline?: string;
+  heroImageUrl?: string;
+  ceremony: VenueInfo;
+  reception: VenueInfo;
+  giftNote: string;
+  giftAccounts: GiftAccount[];
+  ourStory: string;
+  ourStoryImageUrl?: string;
+  programOfEvents: ProgramEvent[];
+  photoshootImages: string[];
+}
+
+export interface Wish {
+  _id: string;
+  name: string;
+  message: string;
+  approved: boolean;
+  createdAt: string;
+}
+
+export interface HotelReservation {
+  _id: string;
+  name: string;
+  contact: string;
+  checkIn: string;
+  checkOut: string;
+  rooms: number;
+  budgetPerRoom: string;
+  notes?: string;
+  status: "pending" | "confirmed";
+  createdAt: string;
+}
+
+export interface PaymentModeInfo {
+  mode: "manual" | "paystack";
+  paystackPublicKey?: string;
+}
