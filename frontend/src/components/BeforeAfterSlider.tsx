@@ -13,7 +13,7 @@ export function BeforeAfterSlider({
   beforeLabel = "Strangers",
   afterLabel = "Forever",
 }: BeforeAfterSliderProps) {
-  const [percent, setPercent] = useState(50);
+  const [percent, setPercent] = useState(70);
 
   return (
     <div className="mx-auto w-full max-w-sm">
@@ -32,10 +32,11 @@ export function BeforeAfterSlider({
           </div>
         </div>
 
-        <span className="pointer-events-none absolute top-3 left-3 rounded-full bg-ink/60 px-3 py-1 font-mono text-xs text-ivory">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-ink/60 to-transparent" />
+        <span className="pointer-events-none absolute bottom-4 left-4 font-display text-xl text-ivory italic drop-shadow">
           {beforeLabel}
         </span>
-        <span className="pointer-events-none absolute top-3 right-3 rounded-full bg-ink/60 px-3 py-1 font-mono text-xs text-ivory">
+        <span className="pointer-events-none absolute right-4 bottom-4 font-display text-xl text-ivory italic drop-shadow">
           {afterLabel}
         </span>
 
