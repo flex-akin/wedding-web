@@ -70,6 +70,13 @@ export interface ProgramEvent {
   colors: ColorOfDay[];
 }
 
+export type PhotoCategory = "proposal" | "throwback" | "pre-wedding";
+
+export interface PhotoshootImage {
+  url: string;
+  category: PhotoCategory;
+}
+
 export interface Settings {
   partnerOneName: string;
   partnerTwoName: string;
@@ -82,8 +89,11 @@ export interface Settings {
   giftAccounts: GiftAccount[];
   ourStory: string;
   ourStoryImageUrl?: string;
+  ourStoryFromImage?: string;
+  ourStoryToImage?: string;
+  ourStoryPdfUrl?: string;
   programOfEvents: ProgramEvent[];
-  photoshootImages: string[];
+  photoshootImages: PhotoshootImage[];
 }
 
 export interface Wish {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { apiRequest } from "../../api/client";
-import type { ColorOfDay, GiftAccount, ProgramEvent, Settings, VenueInfo } from "../../types";
+import type { ColorOfDay, GiftAccount, PhotoshootImage, ProgramEvent, Settings, VenueInfo } from "../../types";
 
 function toDateInputValue(iso?: string) {
   if (!iso) return "";
@@ -12,19 +12,17 @@ const COORD_REGEX = /@(-?\d+\.\d+),(-?\d+\.\d+)/;
 const emptyGiftAccount: GiftAccount = { label: "", accountName: "", accountNumber: "", bankName: "" };
 const emptyProgramEvent: ProgramEvent = { name: "", time: "", note: "", colors: [] };
 const emptyColorOfDay: ColorOfDay = { label: "", hex: "#4A5D48" };
+const emptyPhotoshootImage: PhotoshootImage = { url: "", category: "proposal" };
+const PHOTO_CATEGORIES = ["proposal", "throwback", "pre-wedding"] as const;
 
 export function AdminSettings() {
   const [form, setForm] = useState<Settings | null>(null);
-  const [photoshootImagesText, setPhotoshootImagesText] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    apiRequest<Settings>("/settings").then((s) => {
-      setForm(s);
-      setPhotoshootImagesText(s.photoshootImages.join("\n"));
-    });
+    apiRequest<Settings>("/settings").then(setForm);
   }, []);
 
   if (!form) return <p className="text-sm text-ink/50">Loading…</p>;
@@ -61,10 +59,7 @@ export function AdminSettings() {
       await apiRequest("/settings", {
         method: "PUT",
         admin: true,
-        body: {
-          ...form,
-          photoshootImages: photoshootImagesText.split("\n").map((s) => s.trim()).filter(Boolean),
-        },
+        body: form,
       });
       setSaved(true);
     } catch (e) {
@@ -175,11 +170,40 @@ export function AdminSettings() {
         <h2 className="font-mono text-sm text-terracotta">Our Story</h2>
         <div className="mt-3 space-y-3">
           <div>
-            <label className={labelClass}>Story photo URL</label>
+            <label className={labelClass}>Story photo URL (used only if no from/to photos are set below)</label>
             <input
               placeholder="/images/proposal-hero.jpg"
               value={form.ourStoryImageUrl ?? ""}
               onChange={(e) => setForm({ ...form, ourStoryImageUrl: e.target.value })}
+              className={inputClass}
+            />
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className={labelClass}>"From" photo (e.g. a throwback)</label>
+              <input
+                placeholder="/images/throwback_2.jpeg"
+                value={form.ourStoryFromImage ?? ""}
+                onChange={(e) => setForm({ ...form, ourStoryFromImage: e.target.value })}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>"To" photo (a recent one)</label>
+              <input
+                placeholder="/images/IMG_9924.jpg"
+                value={form.ourStoryToImage ?? ""}
+                onChange={(e) => setForm({ ...form, ourStoryToImage: e.target.value })}
+                className={inputClass}
+              />
+            </div>
+          </div>
+          <div>
+            <label className={labelClass}>Story PDF URL (optional keepsake embed)</label>
+            <input
+              placeholder="/pdf/flora-and-felix-love-story.pdf"
+              value={form.ourStoryPdfUrl ?? ""}
+              onChange={(e) => setForm({ ...form, ourStoryPdfUrl: e.target.value })}
               className={inputClass}
             />
           </div>
@@ -301,15 +325,55 @@ export function AdminSettings() {
       </section>
 
       <section>
-        <h2 className="font-mono text-sm text-terracotta">Photoshoot</h2>
-        <div className="mt-3">
-          <label className={labelClass}>Image URLs (one per line)</label>
-          <textarea
-            value={photoshootImagesText}
-            onChange={(e) => setPhotoshootImagesText(e.target.value)}
-            rows={4}
-            className={inputClass}
-          />
+        <h2 className="font-mono text-sm text-terracotta">Photos</h2>
+        <div className="mt-3 space-y-3">
+          {form.photoshootImages.map((img, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <input
+                placeholder="/images/example.jpg"
+                value={img.url}
+                onChange={(e) => {
+                  const next = [...form.photoshootImages];
+                  next[i] = { ...next[i], url: e.target.value };
+                  setForm({ ...form, photoshootImages: next });
+                }}
+                className={`${inputClass} mt-0 flex-1`}
+              />
+              <select
+                value={img.category}
+                onChange={(e) => {
+                  const next = [...form.photoshootImages];
+                  next[i] = { ...next[i], category: e.target.value as PhotoshootImage["category"] };
+                  setForm({ ...form, photoshootImages: next });
+                }}
+                className="rounded-lg border border-sage/25 bg-white px-2 py-2 text-sm"
+              >
+                {PHOTO_CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() =>
+                  setForm({ ...form, photoshootImages: form.photoshootImages.filter((_, idx) => idx !== i) })
+                }
+                className="shrink-0 rounded-md border border-red-300 px-3 py-1.5 font-mono text-xs text-red-600 hover:bg-red-50"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() =>
+              setForm({ ...form, photoshootImages: [...form.photoshootImages, { ...emptyPhotoshootImage }] })
+            }
+            className="rounded-full border border-sage/30 px-4 py-2 font-mono text-xs text-sage hover:bg-sage/10"
+          >
+            + Add photo
+          </button>
         </div>
       </section>
 

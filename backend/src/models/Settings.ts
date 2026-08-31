@@ -30,6 +30,18 @@ const colorOfDaySchema = new Schema(
   { _id: false }
 );
 
+const photoshootImageSchema = new Schema(
+  {
+    url: { type: String, default: "" },
+    category: {
+      type: String,
+      enum: ["proposal", "throwback", "pre-wedding"],
+      default: "proposal",
+    },
+  },
+  { _id: false }
+);
+
 const programEventSchema = new Schema(
   {
     name: { type: String, default: "" },
@@ -144,8 +156,19 @@ const settingsSchema = new Schema(
     partnerTwoName: { type: String, default: "Flora" },
     weddingDate: { type: Date, default: () => new Date("2026-12-19T07:00:00.000Z") },
     rsvpDeadline: { type: Date },
-    heroImageUrl: { type: String, default: "/images/proposal-hero.jpg" },
-    ceremony: { type: venueSchema, default: () => ({}) },
+    heroImageUrl: { type: String, default: "/images/IMG_0041.jpg" },
+    ceremony: {
+      type: venueSchema,
+      default: () => ({
+        name: "Vie Garden Hub",
+        address: "10/12 Road E, Forthright Estate, Lagos-Ibadan Expressway, behind Punch, Magboro-Akeran, Ogun State",
+        mapsUrl:
+          "https://www.google.com/maps/dir//Vie+Garden+Hub,+L.G.A,+10%2F12+Road+E+Forthright+Estate,+Lagos+-+Ibadan+Expy,+behind+Punch,+Magboro-Akeran+110115,+Ogun+State/@6.6391049,3.3729144,14z/data=!4m8!4m7!1m0!1m5!1m1!1s0x103b95839199934b:0x1357c0794f58057c!2m2!1d3.4035288!2d6.7028965",
+        time: "8:00 AM",
+        lat: 6.7028965,
+        lng: 3.4035288,
+      }),
+    },
     reception: {
       type: venueSchema,
       default: () => ({
@@ -181,6 +204,9 @@ const settingsSchema = new Schema(
     },
     ourStory: { type: String, default: OUR_STORY },
     ourStoryImageUrl: { type: String, default: "/images/proposal-hero.jpg" },
+    ourStoryFromImage: { type: String, default: "/images/throwback_2.jpeg" },
+    ourStoryToImage: { type: String, default: "/images/IMG_9924.jpg" },
+    ourStoryPdfUrl: { type: String, default: "/pdf/flora-and-felix-love-story.pdf" },
     programOfEvents: {
       type: [programEventSchema],
       default: () => {
@@ -203,7 +229,28 @@ const settingsSchema = new Schema(
         ];
       },
     },
-    photoshootImages: { type: [String], default: () => ["/images/proposal-hero.jpg"] },
+    photoshootImages: {
+      type: [photoshootImageSchema],
+      default: () => [
+        { url: "/images/proposal-hero.jpg", category: "proposal" },
+        { url: "/images/IMG_0007.jpg", category: "proposal" },
+        { url: "/images/IMG_0041.jpg", category: "proposal" },
+        { url: "/images/IMG_0067.jpg", category: "proposal" },
+        { url: "/images/IMG_0079.jpg", category: "proposal" },
+        { url: "/images/IMG_9889.jpg", category: "proposal" },
+        { url: "/images/IMG_9891.jpg", category: "proposal" },
+        { url: "/images/IMG_9912.jpg", category: "proposal" },
+        { url: "/images/IMG_9924.jpg", category: "proposal" },
+        { url: "/images/IMG_9929.jpg", category: "proposal" },
+        { url: "/images/IMG_9955.jpg", category: "proposal" },
+        { url: "/images/IMG_9990.jpg", category: "proposal" },
+        { url: "/images/IMG_9998.jpg", category: "proposal" },
+        { url: "/images/throwback_1.jpeg", category: "throwback" },
+        { url: "/images/throwback_2.jpeg", category: "throwback" },
+        { url: "/images/throwback_3.jpeg", category: "throwback" },
+        { url: "/images/throwback_4.jpeg", category: "throwback" },
+      ],
+    },
   },
   { timestamps: true }
 );

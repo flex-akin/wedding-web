@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { SiteTag } from "../components/SiteTag";
-import { HashtagPattern } from "../components/HashtagPattern";
+import { FloralPattern } from "../components/FloralPattern";
 import { HashtagMarquee } from "../components/HashtagMarquee";
 import { Countdown } from "../components/Countdown";
 import { GiftsPanel } from "../components/GiftsPanel";
@@ -26,7 +26,7 @@ export function Home() {
   return (
     <div>
       <section className="relative overflow-hidden px-4 py-20 sm:py-28">
-        <HashtagPattern />
+        <FloralPattern />
         <div className="relative mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
           <SiteTag size="lg" />
 
@@ -88,7 +88,13 @@ export function Home() {
             <h2 className="text-2xl sm:text-3xl">Our Story</h2>
             <p className="mx-auto mt-2 max-w-md text-sm text-ink/60">From strangers to forever.</p>
             <div className="mt-8 text-left">
-              <OurStoryPanel story={settings.ourStory} imageUrl={settings.ourStoryImageUrl} truncateWords={110} />
+              <OurStoryPanel
+                story={settings.ourStory}
+                imageUrl={settings.ourStoryImageUrl}
+                fromImage={settings.ourStoryFromImage}
+                toImage={settings.ourStoryToImage}
+                truncateWords={110}
+              />
             </div>
           </div>
         </section>
@@ -120,7 +126,7 @@ export function Home() {
       {settings && (
         <section className="px-4 py-16">
           <div className="mx-auto max-w-4xl text-center">
-            <h2 className="text-2xl sm:text-3xl">The Photoshoot</h2>
+            <h2 className="text-2xl sm:text-3xl">Photos</h2>
             <p className="mx-auto mt-2 max-w-md text-sm text-ink/60">A preview of the day, before the day.</p>
             <div className="mt-8 text-left">
               <PhotoshootGallery images={settings.photoshootImages} />

@@ -1,5 +1,6 @@
 import { useSettings } from "../lib/useSettings";
 import { OurStoryPanel } from "../components/OurStoryPanel";
+import { PdfEmbed } from "../components/PdfEmbed";
 
 export function OurStory() {
   const { settings, loading, error } = useSettings();
@@ -13,9 +14,23 @@ export function OurStory() {
       {error && <p className="mt-10 text-center text-sm text-red-600">{error}</p>}
 
       {settings && (
-        <div className="mt-10">
-          <OurStoryPanel story={settings.ourStory} imageUrl={settings.ourStoryImageUrl} />
-        </div>
+        <>
+          <div className="mt-10">
+            <OurStoryPanel
+              story={settings.ourStory}
+              imageUrl={settings.ourStoryImageUrl}
+              fromImage={settings.ourStoryFromImage}
+              toImage={settings.ourStoryToImage}
+            />
+          </div>
+
+          {settings.ourStoryPdfUrl && (
+            <div className="mt-16">
+              <p className="mb-4 text-center font-mono text-xs text-terracotta">THE KEEPSAKE EDITION</p>
+              <PdfEmbed src={settings.ourStoryPdfUrl} title="Flora & Felix — Our Love Story" />
+            </div>
+          )}
+        </>
       )}
     </div>
   );
