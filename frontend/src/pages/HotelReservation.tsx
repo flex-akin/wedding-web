@@ -60,9 +60,12 @@ export function HotelReservation() {
             className="w-full rounded-lg border border-sage/25 bg-white px-4 py-3 text-sm"
           />
           <input
+            type="tel"
             value={contact}
             onChange={(e) => setContact(e.target.value)}
-            placeholder="Phone or email"
+            placeholder="Phone number"
+            pattern="[0-9+\-\s()]{7,}"
+            title="Enter a valid phone number"
             required
             className="w-full rounded-lg border border-sage/25 bg-white px-4 py-3 text-sm"
           />
