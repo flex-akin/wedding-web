@@ -47,7 +47,7 @@ export function HotelReservation() {
 
       {submitted ? (
         <div className="mt-10 rounded-2xl border border-sage/20 bg-white/70 p-8 text-center">
-          <p className="text-xl">Got it — thank you! 🏨</p>
+          <p className="text-xl">Got it, thank you! 🏨</p>
           <p className="mt-2 text-sm text-ink/60">We'll follow up with you to confirm the details.</p>
         </div>
       ) : (

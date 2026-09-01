@@ -63,7 +63,7 @@ export function AsoEbi() {
         <h1 className="text-3xl">Order received 🧵</h1>
         <p className="mt-3 text-sm text-ink/70">
           {result.paymentMethod === "manual"
-            ? "We've noted your order. We'll be in touch to confirm payment — thank you!"
+            ? "We've noted your order. We'll be in touch to confirm payment. Thank you!"
             : "We're finalizing your order."}
         </p>
         <div className="mt-6 rounded-xl border border-sage/20 bg-white/70 p-4 text-left text-sm">
@@ -80,7 +80,7 @@ export function AsoEbi() {
     <div className="mx-auto max-w-xl px-4 py-16">
       <h1 className="text-center text-3xl sm:text-4xl">Order Aso-Ebi</h1>
       <p className="mx-auto mt-2 max-w-md text-center text-sm text-ink/60">
-        Pick your color, fabric, and size — we'll take it from there.
+        Pick your color, fabric, and size. We'll take it from there.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-10 space-y-5">

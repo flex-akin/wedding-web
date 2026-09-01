@@ -148,7 +148,7 @@ export function PhotoWall() {
     <div className="mx-auto max-w-5xl px-4 py-16">
       <h1 className="text-center text-3xl sm:text-4xl">Photo Wall</h1>
       <p className="mx-auto mt-2 max-w-md text-center text-sm text-ink/60">
-        Snap it, upload it, watch it appear — live.
+        Snap it, upload it, watch it appear live.
       </p>
       {photos.length > 0 && (
         <p className="mt-2 text-center font-mono text-xs text-terracotta">
@@ -166,7 +166,7 @@ export function PhotoWall() {
           ))}
         </ul>
         <p className="mt-3 text-xs text-ink/60">
-          Complete all three and tag your photos — the first three guests to finish win cash:
+          Complete all three and tag your photos. The first three guests to finish win cash:
         </p>
         <div className="mt-2 flex justify-center gap-4 font-mono text-sm">
           {CHALLENGE_PRIZES.map((prize, i) => (
@@ -198,7 +198,7 @@ export function PhotoWall() {
           onChange={(e) => setChallengeTag(e.target.value)}
           className="w-full rounded-lg border border-sage/25 bg-white px-4 py-3 text-sm text-ink/80"
         >
-          <option value="">No challenge — just sharing</option>
+          <option value="">No challenge, just sharing</option>
           {CHALLENGES.map((c) => (
             <option key={c.id} value={c.id}>
               {c.emoji} Challenge: {c.label}
@@ -227,7 +227,7 @@ export function PhotoWall() {
         <div className="rounded-2xl border border-sage/15 bg-white/60 p-5">
           <h2 className="font-mono text-sm text-terracotta">🏆 Most Loved Photos</h2>
           {mostLiked.length === 0 ? (
-            <p className="mt-3 text-sm text-ink/50">No likes yet — be the first to heart a photo!</p>
+            <p className="mt-3 text-sm text-ink/50">No likes yet. Be the first to heart a photo!</p>
           ) : (
             <ul className="mt-3 space-y-2">
               {mostLiked.map((photo, i) => (
@@ -255,7 +255,7 @@ export function PhotoWall() {
           <h2 className="font-mono text-sm text-terracotta">🎯 Challenge Champions</h2>
           {challengeFinishers.length === 0 ? (
             <p className="mt-3 text-sm text-ink/50">
-              No one's completed all three challenges yet — go find the groomsmen, bridal team, and parents!
+              No one's completed all three challenges yet. Go find the groomsmen, bridal team, and parents!
             </p>
           ) : (
             <>
@@ -315,7 +315,7 @@ export function PhotoWall() {
       </div>
 
       {photos.length === 0 && (
-        <p className="mt-16 text-center text-sm text-ink/40">No photos yet — be the first!</p>
+        <p className="mt-16 text-center text-sm text-ink/40">No photos yet. Be the first!</p>
       )}
 
       {lightboxIndex !== null && (

@@ -4,6 +4,8 @@ import { SiteTag } from "./SiteTag";
 
 const NAV_LINKS = [
   { to: "/", label: "Home", end: true },
+  { to: "/rsvp", label: "RSVP" },
+  { to: "/gifts", label: "Gifts" },
   { to: "/hotel", label: "Hotel Reservations" },
   { to: "/photos", label: "Photo Wall" },
 ];

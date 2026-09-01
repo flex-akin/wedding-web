@@ -22,7 +22,7 @@ export function LiveDistance({ lat, lng }: { lat: number; lng: number }) {
       },
       () => {
         setStatus("error");
-        setErrorMsg("Couldn't get your location — check permissions and try again.");
+        setErrorMsg("Couldn't get your location. Check permissions and try again.");
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );

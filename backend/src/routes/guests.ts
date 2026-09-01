@@ -29,6 +29,18 @@ guestsRouter.get("/slug/:slug", async (req, res) => {
   res.json(guest);
 });
 
+// Public: look up a guest's personalized RSVP link by name
+guestsRouter.get("/lookup", async (req, res) => {
+  const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
+  if (q.length < 2) return res.json([]);
+
+  const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const matches = await GuestModel.find({ name: new RegExp(escaped, "i") })
+    .select("name slug")
+    .limit(10);
+  res.json(matches);
+});
+
 // Public: submit RSVP
 guestsRouter.post("/slug/:slug/rsvp", async (req, res) => {
   const guest = await GuestModel.findOne({ slug: req.params.slug.toLowerCase() });

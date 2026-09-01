@@ -63,12 +63,12 @@ export function WishesPanel() {
       <div className="mx-auto mt-12 max-w-md space-y-4">
         {loading && <p className="text-center text-sm text-ink/50">Loading…</p>}
         {!loading && wishes.length === 0 && (
-          <p className="text-center text-sm text-ink/40">No wishes yet — be the first!</p>
+          <p className="text-center text-sm text-ink/40">No wishes yet. Be the first!</p>
         )}
         {wishes.map((wish) => (
           <div key={wish._id} className="rounded-2xl border border-sage/15 bg-white/60 p-5 text-left">
             <p className="text-sm leading-relaxed text-ink/80">{wish.message}</p>
-            <p className="mt-3 font-mono text-xs text-terracotta">— {wish.name}</p>
+            <p className="mt-3 font-mono text-xs text-terracotta">by {wish.name}</p>
           </div>
         ))}
       </div>

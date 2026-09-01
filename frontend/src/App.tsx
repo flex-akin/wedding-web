@@ -9,6 +9,7 @@ import { Directions } from "./pages/Directions";
 import { Gifts } from "./pages/Gifts";
 import { PhotoWall } from "./pages/PhotoWall";
 import { RSVP } from "./pages/RSVP";
+import { RsvpLookup } from "./pages/RsvpLookup";
 import { OurStory } from "./pages/OurStory";
 import { OrderOfTheDay } from "./pages/OrderOfTheDay";
 import { Photoshoot } from "./pages/Photoshoot";
@@ -34,6 +35,7 @@ function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Home />} />
+          <Route path="rsvp" element={<RsvpLookup />} />
           <Route path="rsvp/:slug" element={<RSVP />} />
           <Route path="our-story" element={<OurStory />} />
           <Route path="directions" element={<Directions />} />

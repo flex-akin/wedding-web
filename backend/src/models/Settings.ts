@@ -56,7 +56,7 @@ const OUR_STORY = `Sometimes, the most beautiful love stories begin without eith
 
 Ours began on April 1, 2018, at Casor.
 
-We were two young people who simply happened to cross paths. At the time, there was no way of knowing that this ordinary meeting would become one of the most important moments of our lives. We were strangers then — just two people living our separate lives, unaware that God was quietly writing our names into the same story.
+We were two young people who simply happened to cross paths. At the time, there was no way of knowing that this ordinary meeting would become one of the most important moments of our lives. We were strangers then, just two people living our separate lives, unaware that God was quietly writing our names into the same story.
 
 Looking back, we often wonder what would have happened if we had never come to Casor that day. Would we have met somewhere else? Was that our one chance to cross paths? We may never know.
 
@@ -64,11 +64,11 @@ But perhaps that is the beauty of it.
 
 Because somehow, we found each other.
 
-What began as a simple friendship slowly became something deeper. We talked, laughed, shared pieces of our lives, and became each other's closest companion. Somewhere along the way, Flora told Felix he was the kind of man she could see herself ending up with — long before either of us was even dating.
+What began as a simple friendship slowly became something deeper. We talked, laughed, shared pieces of our lives, and became each other's closest companion. Somewhere along the way, Flora told Felix he was the kind of man she could see herself ending up with, long before either of us was even dating.
 
 And then, on October 4, 2018, we made it official.
 
-We were young, broke university students with big dreams, little money, and a whole lot of love. We found joy in the simplest things — hanging out, sharing moments, growing together, and, of course, eating ice cream.
+We were young, broke university students with big dreams, little money, and a whole lot of love. We found joy in the simplest things: hanging out, sharing moments, growing together, and, of course, eating ice cream.
 
 That ice cream became one of the sweetest symbols of our beginning.
 
@@ -90,7 +90,7 @@ We were meant to be.
 
 As the years passed, our relationship became more than romance. We became teammates. We watched each other grow through school, career, faith, dreams, disappointments, and everything in between.
 
-When Felix returned to FUTA for his Master's degree, we found ourselves growing even deeper together. We spent countless nights at the school hub, sharpening our skills — AI and software engineering becoming part of the story we were building together. We were no longer simply two students in love; we were two people becoming the versions of ourselves we had dreamed about.
+When Felix returned to FUTA for his Master's degree, we found ourselves growing even deeper together. We spent countless nights at the school hub, sharpening our skills, AI and software engineering becoming part of the story we were building together. We were no longer simply two students in love; we were two people becoming the versions of ourselves we had dreamed about.
 
 Those sleepless nights eventually paid off.
 
@@ -98,7 +98,7 @@ We both stepped into our dream careers, grew professionally and financially, and
 
 But our love was never only about the good days.
 
-We stood beside each other through difficult seasons too — including one of the hardest moments of Felix's life, the passing of his father. And through every season, we continued choosing each other.
+We stood beside each other through difficult seasons too, including one of the hardest moments of Felix's life, the passing of his father. And through every season, we continued choosing each other.
 
 We celebrated graduations together. We showed up for each other's milestones. We met each other's families and were welcomed with open arms. We became part of each other's worlds, until the line between your life and my life slowly disappeared.
 
@@ -124,7 +124,7 @@ We see the best friends they became.
 
 And now, we see husband and wife.
 
-Perhaps that is our favourite part of the story: we didn't just fall in love — we grew in love.
+Perhaps that is our favourite part of the story: we didn't just fall in love. We grew in love.
 
 We grew through university.
 We grew through distance.

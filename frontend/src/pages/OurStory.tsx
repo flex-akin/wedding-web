@@ -27,7 +27,7 @@ export function OurStory() {
           {settings.ourStoryPdfUrl && (
             <div className="mt-16">
               <p className="mb-4 text-center font-mono text-xs text-terracotta">THE KEEPSAKE EDITION</p>
-              <PdfEmbed src={settings.ourStoryPdfUrl} title="Flora & Felix — Our Love Story" />
+              <PdfEmbed src={settings.ourStoryPdfUrl} title="Flora & Felix: Our Love Story" />
             </div>
           )}
         </>

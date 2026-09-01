@@ -83,7 +83,7 @@ export function RSVP() {
       {submitted ? (
         <div className="mt-10 rounded-2xl border border-sage/20 bg-white/70 p-8 text-center">
           <p className="text-xl">
-            {rsvpStatus === "attending" ? "Thank you for RSVPing — see you there! 🎉" : "Thanks for letting us know."}
+            {rsvpStatus === "attending" ? "Thank you for RSVPing. See you there! 🎉" : "Thanks for letting us know."}
           </p>
           <button
             onClick={() => setSubmitted(false)}

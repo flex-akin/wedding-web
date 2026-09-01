@@ -38,7 +38,7 @@ export function AdminWishes() {
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
                 <p className="text-sm text-ink/80">{wish.message}</p>
-                <p className="mt-1 font-mono text-xs text-terracotta">— {wish.name}</p>
+                <p className="mt-1 font-mono text-xs text-terracotta">by {wish.name}</p>
               </div>
               <span className={`font-mono text-xs ${wish.approved ? "text-sage" : "text-terracotta"}`}>
                 {wish.approved ? "visible" : "hidden"}

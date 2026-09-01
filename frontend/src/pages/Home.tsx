@@ -54,8 +54,14 @@ export function Home() {
 
           <div className="mt-4 flex flex-wrap justify-center gap-3">
             <Link
-              to="/directions"
+              to="/rsvp"
               className="rounded-full bg-sage px-6 py-3 font-mono text-sm text-ivory shadow-sm transition-transform hover:scale-[1.03]"
+            >
+              RSVP
+            </Link>
+            <Link
+              to="/directions"
+              className="rounded-full border border-sage/40 px-6 py-3 font-mono text-sm text-sage transition-transform hover:scale-[1.03]"
             >
               Directions
             </Link>
@@ -74,8 +80,7 @@ export function Home() {
           </div>
 
           <p className="mt-6 max-w-md text-sm text-ink/60">
-            Have a personal invite link? Use it to RSVP — check your invitation or the message we sent you for your
-            unique link.
+            Have a personal invite link? Use it to RSVP. Otherwise, tap RSVP above and search for your name.
           </p>
         </div>
       </section>
