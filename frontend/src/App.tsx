@@ -18,6 +18,7 @@ import { HotelReservation } from "./pages/HotelReservation";
 import { AdminLogin } from "./pages/admin/Login";
 import { AdminDashboard } from "./pages/admin/Dashboard";
 import { AdminGuests } from "./pages/admin/Guests";
+import { AdminGuestRequests } from "./pages/admin/GuestRequests";
 import { AdminPhotos } from "./pages/admin/Photos";
 import { AdminSettings } from "./pages/admin/Settings";
 import { AdminWishes } from "./pages/admin/Wishes";
@@ -52,6 +53,7 @@ function App() {
           <Route element={<AdminLayout />}>
             <Route path="admin" element={<AdminDashboard />} />
             <Route path="admin/guests" element={<AdminGuests />} />
+            <Route path="admin/guest-requests" element={<AdminGuestRequests />} />
             <Route path="admin/photos" element={<AdminPhotos />} />
             <Route path="admin/wishes" element={<AdminWishes />} />
             <Route path="admin/hotel-reservations" element={<AdminHotelReservations />} />

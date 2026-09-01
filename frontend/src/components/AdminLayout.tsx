@@ -6,6 +6,7 @@ import { clearAdminToken } from "../api/client";
 const ADMIN_LINKS = [
   { to: "/admin", label: "Dashboard", end: true },
   { to: "/admin/guests", label: "Guests" },
+  { to: "/admin/guest-requests", label: "Guest Requests" },
   { to: "/admin/photos", label: "Photo Moderation" },
   { to: "/admin/wishes", label: "Wishes" },
   { to: "/admin/hotel-reservations", label: "Hotel Reservations" },

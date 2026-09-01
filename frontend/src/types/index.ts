@@ -104,6 +104,15 @@ export interface Wish {
   createdAt: string;
 }
 
+export interface GuestRequest {
+  _id: string;
+  name: string;
+  phone: string;
+  status: "pending" | "approved" | "rejected";
+  guestId?: string;
+  createdAt: string;
+}
+
 export interface HotelReservation {
   _id: string;
   name: string;

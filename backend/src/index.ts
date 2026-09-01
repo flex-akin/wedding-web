@@ -9,6 +9,7 @@ import { initSockets } from "./sockets";
 import { authRouter } from "./routes/auth";
 import { settingsRouter } from "./routes/settings";
 import { guestsRouter } from "./routes/guests";
+import { guestRequestsRouter } from "./routes/guestRequests";
 import { photosRouter } from "./routes/photos";
 import { wishesRouter } from "./routes/wishes";
 import { hotelReservationsRouter } from "./routes/hotelReservations";
@@ -34,6 +35,7 @@ async function main() {
   app.use("/api/auth", authRouter);
   app.use("/api/settings", settingsRouter);
   app.use("/api/guests", guestsRouter);
+  app.use("/api/guest-requests", guestRequestsRouter);
   app.use("/api/photos", photosRouter);
   app.use("/api/wishes", wishesRouter);
   app.use("/api/hotel-reservations", hotelReservationsRouter);
