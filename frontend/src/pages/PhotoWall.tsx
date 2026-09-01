@@ -12,7 +12,6 @@ import { computeChallengeLeaderboard } from "../lib/challengeLeaderboard";
 import type { Photo } from "../types";
 
 const MILESTONES = [25, 50, 100];
-const MEDALS = ["🥇", "🥈", "🥉"];
 
 export function PhotoWall() {
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -157,12 +156,10 @@ export function PhotoWall() {
       )}
 
       <div className="mx-auto mt-8 max-w-lg rounded-2xl border border-gold/30 bg-gold/8 p-5 text-center">
-        <p className="font-mono text-xs text-terracotta">📸 PHOTO CHALLENGES</p>
+        <p className="font-mono text-xs text-terracotta">PHOTO CHALLENGES</p>
         <ul className="mt-3 space-y-1 text-sm text-ink/80">
           {CHALLENGES.map((c) => (
-            <li key={c.id}>
-              {c.emoji} {c.label}
-            </li>
+            <li key={c.id}>{c.label}</li>
           ))}
         </ul>
         <p className="mt-3 text-xs text-ink/60">
@@ -171,7 +168,7 @@ export function PhotoWall() {
         <div className="mt-2 flex justify-center gap-4 font-mono text-sm">
           {CHALLENGE_PRIZES.map((prize, i) => (
             <span key={prize} className="text-terracotta">
-              {MEDALS[i]} {prize}
+              {i + 1}. {prize}
             </span>
           ))}
         </div>
@@ -201,7 +198,7 @@ export function PhotoWall() {
           <option value="">No challenge, just sharing</option>
           {CHALLENGES.map((c) => (
             <option key={c.id} value={c.id}>
-              {c.emoji} Challenge: {c.label}
+              Challenge: {c.label}
             </option>
           ))}
         </select>
@@ -262,7 +259,7 @@ export function PhotoWall() {
               <ul className="mt-3 space-y-2">
                 {challengeFinishers.slice(0, 3).map((finisher, i) => (
                   <li key={finisher.name} className="flex items-center gap-3 p-1.5">
-                    <span className="w-5 shrink-0 text-base">{MEDALS[i]}</span>
+                    <span className="w-5 shrink-0 font-mono text-sm text-ink/50">{i + 1}.</span>
                     <span className="flex-1 truncate font-mono text-xs text-ink/70">{finisher.name}</span>
                     <span className="shrink-0 font-mono text-xs text-terracotta">{CHALLENGE_PRIZES[i]}</span>
                   </li>
