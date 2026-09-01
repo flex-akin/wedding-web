@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { apiRequest } from "../api/client";
+import { AccessCard } from "../components/AccessCard";
+import { useSettings } from "../lib/useSettings";
 import type { Guest } from "../types";
 
 export function RSVP() {
   const { slug } = useParams<{ slug: string }>();
+  const { settings } = useSettings();
   const [guest, setGuest] = useState<Guest | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   const [rsvpStatus, setRsvpStatus] = useState<"attending" | "declined">("attending");
   const [mealChoice, setMealChoice] = useState("");
@@ -21,6 +24,7 @@ export function RSVP() {
     apiRequest<Guest>(`/guests/slug/${slug}`)
       .then((g) => {
         setGuest(g);
+        setEditing(g.rsvpStatus === "pending");
         if (g.rsvpStatus !== "pending") setRsvpStatus(g.rsvpStatus as "attending" | "declined");
         setMealChoice(g.mealChoice ?? "");
         setPlusOneNames(g.plusOnes.map((p) => p.name));
@@ -46,7 +50,7 @@ export function RSVP() {
         },
       });
       setGuest(updated);
-      setSubmitted(true);
+      setEditing(false);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -80,16 +84,31 @@ export function RSVP() {
           : "We'd love to have you celebrate with us."}
       </p>
 
-      {submitted ? (
-        <div className="mt-10 rounded-2xl border border-sage/20 bg-white/70 p-8 text-center">
-          <p className="text-xl">
-            {rsvpStatus === "attending" ? "Thank you for RSVPing. See you there! 🎉" : "Thanks for letting us know."}
-          </p>
+      {!editing ? (
+        <div className="mt-10 text-center">
+          {guest.rsvpStatus === "attending" ? (
+            <>
+              <div className="rounded-2xl border border-sage/20 bg-white/70 p-8">
+                <p className="text-xl">Thank you for RSVPing. See you there! 🎉</p>
+              </div>
+              {settings && (
+                <AccessCard
+                  guest={guest}
+                  partnerOneName={settings.partnerOneName}
+                  partnerTwoName={settings.partnerTwoName}
+                />
+              )}
+            </>
+          ) : (
+            <div className="rounded-2xl border border-sage/20 bg-white/70 p-8">
+              <p className="text-xl">Thanks for letting us know.</p>
+            </div>
+          )}
           <button
-            onClick={() => setSubmitted(false)}
+            onClick={() => setEditing(true)}
             className="mt-4 font-mono text-xs text-terracotta underline"
           >
-            Edit response
+            Change my response
           </button>
         </div>
       ) : (

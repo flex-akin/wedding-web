@@ -12,9 +12,11 @@ import { guestsRouter } from "./routes/guests";
 import { photosRouter } from "./routes/photos";
 import { wishesRouter } from "./routes/wishes";
 import { hotelReservationsRouter } from "./routes/hotelReservations";
+import { seedPhoneGuests } from "./seed/phoneGuests";
 
 async function main() {
   await connectDb();
+  await seedPhoneGuests();
 
   const app = express();
   app.use(cors({ origin: env.clientOrigin }));

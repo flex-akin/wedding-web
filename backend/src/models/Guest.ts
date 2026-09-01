@@ -12,7 +12,7 @@ const guestSchema = new Schema(
     name: { type: String, required: true, trim: true },
     slug: { type: String, required: true, unique: true, index: true, lowercase: true, trim: true },
     partySize: { type: Number, required: true, default: 1, min: 1 },
-    phone: { type: String, trim: true },
+    phone: { type: String, trim: true, index: true },
     email: { type: String, trim: true },
     rsvpStatus: {
       type: String,

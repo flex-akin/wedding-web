@@ -1,26 +1,10 @@
 import { Router } from "express";
 import { GuestModel } from "../models/Guest";
 import { requireAdmin } from "../middleware/requireAdmin";
+import { toStoredPhone } from "../utils/phone";
+import { slugify, uniqueGuestSlug as uniqueSlug } from "../utils/guestSlug";
 
 export const guestsRouter = Router();
-
-function slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-}
-
-async function uniqueSlug(base: string): Promise<string> {
-  let slug = base || "guest";
-  let suffix = 1;
-  while (await GuestModel.exists({ slug })) {
-    suffix += 1;
-    slug = `${base}-${suffix}`;
-  }
-  return slug;
-}
 
 // Public: fetch guest by slug for the personalized RSVP page
 guestsRouter.get("/slug/:slug", async (req, res) => {
@@ -29,13 +13,18 @@ guestsRouter.get("/slug/:slug", async (req, res) => {
   res.json(guest);
 });
 
-// Public: look up a guest's personalized RSVP link by name
+// Public: look up a guest's personalized RSVP link by name or phone number
+// (accepts +234..., 234..., or a local 0... number — all normalize the same way)
 guestsRouter.get("/lookup", async (req, res) => {
   const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
   if (q.length < 2) return res.json([]);
 
   const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const matches = await GuestModel.find({ name: new RegExp(escaped, "i") })
+  const phoneCandidate = toStoredPhone(q);
+
+  const matches = await GuestModel.find({
+    $or: [{ name: new RegExp(escaped, "i") }, ...(phoneCandidate ? [{ phone: phoneCandidate }] : [])],
+  })
     .select("name slug")
     .limit(10);
   res.json(matches);
@@ -93,32 +82,46 @@ guestsRouter.post("/", requireAdmin, async (req, res) => {
     name: name.trim(),
     slug,
     partySize: partySize && partySize > 0 ? partySize : 1,
-    phone,
+    phone: toStoredPhone(phone),
     email,
   });
   res.status(201).json(guest);
 });
 
-// Admin: bulk add guests from a list of names (one per line)
+// Admin: bulk add guests, either as plain names or { name, phone } pairs
 guestsRouter.post("/bulk", requireAdmin, async (req, res) => {
-  const { names } = req.body as { names?: string[] };
-  if (!Array.isArray(names) || names.length === 0) {
-    return res.status(400).json({ error: "names must be a non-empty array" });
+  const { names, entries } = req.body as {
+    names?: string[];
+    entries?: { name?: string; phone?: string }[];
+  };
+
+  const rawRows: { name?: string; phone?: string }[] = [
+    ...(Array.isArray(names) ? names.map((n) => ({ name: n, phone: undefined })) : []),
+    ...(Array.isArray(entries) ? entries : []),
+  ];
+  const rows = rawRows
+    .map((r) => ({ name: r.name?.trim() ?? "", phone: r.phone?.trim() }))
+    .filter((r) => r.name);
+
+  if (rows.length === 0) {
+    return res.status(400).json({ error: "names or entries must be a non-empty array" });
   }
 
   const created = [];
-  for (const rawName of names) {
-    const name = rawName.trim();
-    if (!name) continue;
-    const slug = await uniqueSlug(slugify(name));
-    created.push(await GuestModel.create({ name, slug, partySize: 1 }));
+  for (const row of rows) {
+    const slug = await uniqueSlug(slugify(row.name));
+    created.push(
+      await GuestModel.create({ name: row.name, slug, partySize: 1, phone: toStoredPhone(row.phone) })
+    );
   }
   res.status(201).json(created);
 });
 
 // Admin: update a guest
 guestsRouter.patch("/:id", requireAdmin, async (req, res) => {
-  const guest = await GuestModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  const patch = { ...req.body };
+  if (typeof patch.phone === "string") patch.phone = toStoredPhone(patch.phone);
+  const guest = await GuestModel.findByIdAndUpdate(req.params.id, patch, { new: true });
   if (!guest) return res.status(404).json({ error: "Guest not found" });
   res.json(guest);
 });

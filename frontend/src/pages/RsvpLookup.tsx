@@ -32,14 +32,14 @@ export function RsvpLookup() {
     <div className="mx-auto max-w-lg px-4 py-16">
       <h1 className="text-center text-3xl sm:text-4xl">RSVP</h1>
       <p className="mx-auto mt-2 max-w-md text-center text-sm text-ink/60">
-        Type the name your invite is under to find your RSVP link.
+        Type the name or phone number your invite is under to find your RSVP link.
       </p>
 
       <form onSubmit={handleSubmit} className="mx-auto mt-8 flex max-w-md gap-3">
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Your full name"
+          placeholder="Your name or phone number"
           className="flex-1 rounded-lg border border-sage/25 bg-white px-4 py-3 text-sm"
         />
         <button
@@ -57,7 +57,7 @@ export function RsvpLookup() {
         <div className="mt-8 space-y-3">
           {results.length === 0 ? (
             <p className="text-center text-sm text-ink/50">
-              No invite found under that name. Double-check the spelling, or reach out to the couple directly.
+              No invite found under that name or number. Double-check it, or reach out to the couple directly.
             </p>
           ) : (
             results.map((guest) => (
