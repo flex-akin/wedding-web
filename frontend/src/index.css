@@ -154,3 +154,41 @@
     animation: none;
   }
 }
+
+@keyframes mark-draw {
+  from {
+    stroke-dashoffset: 260;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-mark-draw {
+  stroke-dasharray: 260;
+  stroke-dashoffset: 260;
+  animation: mark-draw 1.2s ease-out forwards;
+}
+
+@keyframes mark-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-mark-spin {
+  animation: mark-spin 90s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-mark-draw {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+  .animate-mark-spin {
+    animation: none;
+  }
+}

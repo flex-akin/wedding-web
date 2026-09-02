@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { HashtagMarquee } from "./HashtagMarquee";
-import { TechPattern } from "./TechPattern";
+import { GitMark } from "./GitMark";
 
 const BOOT_LINES = [
   "> resolving venue.config",
@@ -71,7 +71,7 @@ export function SplashScreen({ onDone }: SplashScreenProps) {
       aria-live="polite"
       aria-label="Loading"
     >
-      <TechPattern />
+      <GitMark />
 
       <div className="relative flex flex-1 flex-col items-center justify-center gap-3 px-4 text-center">
         <p className="text-balance font-display text-5xl text-ivory sm:text-7xl">Flora weds Felix</p>
