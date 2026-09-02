@@ -8,6 +8,7 @@ const seedFlagSchema = new Schema(
     key: { type: String, required: true, unique: true },
     seededAt: { type: Date, default: Date.now },
     count: { type: Number, default: 0 },
+    skipped: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
