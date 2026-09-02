@@ -19,6 +19,8 @@ const guestSchema = new Schema(
       enum: ["pending", "attending", "declined"],
       default: "pending",
     },
+    attendingCeremony: { type: Boolean, default: false },
+    attendingReception: { type: Boolean, default: false },
     mealChoice: { type: String, trim: true },
     plusOnes: { type: [plusOneSchema], default: [] },
     notes: { type: String, trim: true },

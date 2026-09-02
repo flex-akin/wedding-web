@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { GuestModel } from "../models/Guest";
+import { GuestRequestModel } from "../models/GuestRequest";
 import { requireAdmin } from "../middleware/requireAdmin";
 import { toStoredPhone } from "../utils/phone";
 import { slugify, uniqueGuestSlug as uniqueSlug } from "../utils/guestSlug";
@@ -17,7 +18,7 @@ guestsRouter.get("/slug/:slug", async (req, res) => {
 // (accepts +234..., 234..., or a local 0... number — all normalize the same way)
 guestsRouter.get("/lookup", async (req, res) => {
   const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
-  if (q.length < 2) return res.json([]);
+  if (q.length < 2) return res.json({ matches: [], rejected: false });
 
   const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const phoneCandidate = toStoredPhone(q);
@@ -27,27 +28,31 @@ guestsRouter.get("/lookup", async (req, res) => {
   })
     .select("name slug")
     .limit(10);
-  res.json(matches);
+
+  let rejected = false;
+  if (matches.length === 0 && phoneCandidate) {
+    rejected = Boolean(await GuestRequestModel.exists({ phone: phoneCandidate, status: "rejected" }));
+  }
+
+  res.json({ matches, rejected });
 });
 
-// Public: submit RSVP
+// Public: submit RSVP — guests confirm per-event (Garden Wedding / Engagement)
 guestsRouter.post("/slug/:slug/rsvp", async (req, res) => {
   const guest = await GuestModel.findOne({ slug: req.params.slug.toLowerCase() });
   if (!guest) return res.status(404).json({ error: "Guest not found" });
 
-  const { rsvpStatus, mealChoice, plusOnes, notes } = req.body as {
-    rsvpStatus?: string;
-    mealChoice?: string;
+  const { attendingCeremony, attendingReception, plusOnes, notes } = req.body as {
+    attendingCeremony?: boolean;
+    attendingReception?: boolean;
     plusOnes?: { name: string }[];
     notes?: string;
   };
 
-  if (!rsvpStatus || !["attending", "declined"].includes(rsvpStatus)) {
-    return res.status(400).json({ error: "rsvpStatus must be 'attending' or 'declined'" });
-  }
+  guest.attendingCeremony = Boolean(attendingCeremony);
+  guest.attendingReception = Boolean(attendingReception);
+  guest.rsvpStatus = guest.attendingCeremony || guest.attendingReception ? "attending" : "declined";
 
-  guest.rsvpStatus = rsvpStatus as "attending" | "declined";
-  if (mealChoice !== undefined) guest.mealChoice = mealChoice;
   if (Array.isArray(plusOnes)) {
     const cleaned = plusOnes
       .filter((p) => p?.name?.trim())

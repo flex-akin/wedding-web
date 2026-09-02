@@ -185,9 +185,18 @@ export function AdminGuests() {
                     {guest.phone ? ` · ${guest.phone}` : ""}
                   </p>
                 </div>
-                <span className={`rounded-full px-3 py-1 font-mono text-xs ${statusColors[guest.rsvpStatus]}`}>
-                  {guest.rsvpStatus}
-                </span>
+                <div className="flex items-center gap-2">
+                  {guest.rsvpStatus === "attending" && (
+                    <span className="rounded-full bg-white px-2 py-1 font-mono text-[10px] text-ink/60">
+                      {[guest.attendingCeremony && "Garden", guest.attendingReception && "Engagement"]
+                        .filter(Boolean)
+                        .join(" + ")}
+                    </span>
+                  )}
+                  <span className={`rounded-full px-3 py-1 font-mono text-xs ${statusColors[guest.rsvpStatus]}`}>
+                    {guest.rsvpStatus}
+                  </span>
+                </div>
               </div>
 
               <div className="mt-3 flex flex-wrap gap-2">

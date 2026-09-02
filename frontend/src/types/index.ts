@@ -10,6 +10,8 @@ export interface Guest {
   phone?: string;
   email?: string;
   rsvpStatus: "pending" | "attending" | "declined";
+  attendingCeremony: boolean;
+  attendingReception: boolean;
   mealChoice?: string;
   plusOnes: PlusOne[];
   notes?: string;

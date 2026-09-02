@@ -14,8 +14,8 @@ export function RSVP() {
   const [submitting, setSubmitting] = useState(false);
   const [editing, setEditing] = useState(false);
 
-  const [rsvpStatus, setRsvpStatus] = useState<"attending" | "declined">("attending");
-  const [mealChoice, setMealChoice] = useState("");
+  const [attendingCeremony, setAttendingCeremony] = useState(false);
+  const [attendingReception, setAttendingReception] = useState(false);
   const [plusOneNames, setPlusOneNames] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
 
@@ -25,8 +25,8 @@ export function RSVP() {
       .then((g) => {
         setGuest(g);
         setEditing(g.rsvpStatus === "pending");
-        if (g.rsvpStatus !== "pending") setRsvpStatus(g.rsvpStatus as "attending" | "declined");
-        setMealChoice(g.mealChoice ?? "");
+        setAttendingCeremony(g.attendingCeremony);
+        setAttendingReception(g.attendingReception);
         setPlusOneNames(g.plusOnes.map((p) => p.name));
         setNotes(g.notes ?? "");
       })
@@ -43,8 +43,8 @@ export function RSVP() {
       const updated = await apiRequest<Guest>(`/guests/slug/${slug}/rsvp`, {
         method: "POST",
         body: {
-          rsvpStatus,
-          mealChoice: mealChoice || undefined,
+          attendingCeremony,
+          attendingReception,
           plusOnes: plusOneNames.filter((n) => n.trim()).map((name) => ({ name })),
           notes: notes || undefined,
         },
@@ -74,6 +74,9 @@ export function RSVP() {
   if (!guest) return null;
 
   const extraSlots = Math.max(0, guest.partySize - 1);
+  const ceremonyTime = settings?.ceremony?.time;
+  const receptionTime = settings?.reception?.time;
+  const canPickGuests = attendingCeremony || attendingReception;
 
   return (
     <div className="mx-auto max-w-xl px-4 py-16">
@@ -96,6 +99,7 @@ export function RSVP() {
                   guest={guest}
                   partnerOneName={settings.partnerOneName}
                   partnerTwoName={settings.partnerTwoName}
+                  weddingDate={settings.weddingDate}
                 />
               )}
             </>
@@ -113,62 +117,48 @@ export function RSVP() {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="mt-10 space-y-6">
-          <fieldset className="flex gap-3">
+          <fieldset className="space-y-3">
+            <label className="block font-mono text-xs text-sage">Which events will you join us for?</label>
             <button
               type="button"
-              onClick={() => setRsvpStatus("attending")}
-              className={`flex-1 rounded-xl border px-4 py-3 font-mono text-sm ${
-                rsvpStatus === "attending"
-                  ? "border-sage bg-sage text-ivory"
-                  : "border-sage/30 text-sage"
+              onClick={() => setAttendingCeremony((v) => !v)}
+              className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left font-mono text-sm ${
+                attendingCeremony ? "border-sage bg-sage text-ivory" : "border-sage/30 text-sage"
               }`}
             >
-              Joyfully attending
+              <span>Garden Wedding{ceremonyTime ? ` — ${ceremonyTime}` : ""}</span>
+              <span>{attendingCeremony ? "✓" : ""}</span>
             </button>
             <button
               type="button"
-              onClick={() => setRsvpStatus("declined")}
-              className={`flex-1 rounded-xl border px-4 py-3 font-mono text-sm ${
-                rsvpStatus === "declined"
-                  ? "border-terracotta bg-terracotta text-ivory"
-                  : "border-terracotta/30 text-terracotta"
+              onClick={() => setAttendingReception((v) => !v)}
+              className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left font-mono text-sm ${
+                attendingReception ? "border-terracotta bg-terracotta text-ivory" : "border-terracotta/30 text-terracotta"
               }`}
             >
-              Can't make it
+              <span>Engagement{receptionTime ? ` — ${receptionTime}` : ""}</span>
+              <span>{attendingReception ? "✓" : ""}</span>
             </button>
+            <p className="text-xs text-ink/50">Leave both unchecked if you can't make it to either.</p>
           </fieldset>
 
-          {rsvpStatus === "attending" && (
-            <>
-              <div>
-                <label className="block font-mono text-xs text-sage">Meal choice</label>
+          {canPickGuests && extraSlots > 0 && (
+            <div className="space-y-2">
+              <label className="block font-mono text-xs text-sage">Guest names</label>
+              {Array.from({ length: extraSlots }).map((_, i) => (
                 <input
-                  value={mealChoice}
-                  onChange={(e) => setMealChoice(e.target.value)}
-                  placeholder="e.g. Jollof rice, no seafood"
-                  className="mt-1 w-full rounded-lg border border-sage/25 bg-white px-4 py-3 text-sm"
+                  key={i}
+                  value={plusOneNames[i] ?? ""}
+                  onChange={(e) => {
+                    const next = [...plusOneNames];
+                    next[i] = e.target.value;
+                    setPlusOneNames(next);
+                  }}
+                  placeholder={`Guest ${i + 1} name`}
+                  className="w-full rounded-lg border border-sage/25 bg-white px-4 py-3 text-sm"
                 />
-              </div>
-
-              {extraSlots > 0 && (
-                <div className="space-y-2">
-                  <label className="block font-mono text-xs text-sage">Guest names</label>
-                  {Array.from({ length: extraSlots }).map((_, i) => (
-                    <input
-                      key={i}
-                      value={plusOneNames[i] ?? ""}
-                      onChange={(e) => {
-                        const next = [...plusOneNames];
-                        next[i] = e.target.value;
-                        setPlusOneNames(next);
-                      }}
-                      placeholder={`Guest ${i + 1} name`}
-                      className="w-full rounded-lg border border-sage/25 bg-white px-4 py-3 text-sm"
-                    />
-                  ))}
-                </div>
-              )}
-            </>
+              ))}
+            </div>
           )}
 
           <div>
