@@ -4,6 +4,12 @@ services:
     restart: unless-stopped
     volumes:
       - mongo_data:/data/db
+    ports:
+      # Loopback-only — reachable at localhost:27017 on the host machine
+      # itself, never from the network. Use an SSH tunnel to reach it from
+      # elsewhere (e.g. MongoDB Compass on your laptop). This has no auth
+      # configured, so it must never be bound to a public interface.
+      - "127.0.0.1:27017:27017"
 
   backend:
     build: ./backend
