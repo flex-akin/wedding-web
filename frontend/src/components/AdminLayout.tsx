@@ -10,6 +10,7 @@ const ADMIN_LINKS = [
   { to: "/admin/photos", label: "Photo Moderation" },
   { to: "/admin/wishes", label: "Wishes" },
   { to: "/admin/hotel-reservations", label: "Hotel Reservations" },
+  { to: "/admin/asoebi-payments", label: "Aso-Ebi Payments" },
   { to: "/admin/settings", label: "Settings" },
 ];
 

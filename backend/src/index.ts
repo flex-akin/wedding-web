@@ -13,11 +13,14 @@ import { guestRequestsRouter } from "./routes/guestRequests";
 import { photosRouter } from "./routes/photos";
 import { wishesRouter } from "./routes/wishes";
 import { hotelReservationsRouter } from "./routes/hotelReservations";
+import { asoebiPaymentsRouter } from "./routes/asoebiPayments";
 import { seedPhoneGuests } from "./seed/phoneGuests";
+import { seedAsoebiPayments } from "./seed/asoebiPayments";
 
 async function main() {
   await connectDb();
   await seedPhoneGuests();
+  await seedAsoebiPayments();
 
   const app = express();
   app.use(cors({ origin: env.clientOrigin }));
@@ -39,6 +42,7 @@ async function main() {
   app.use("/api/photos", photosRouter);
   app.use("/api/wishes", wishesRouter);
   app.use("/api/hotel-reservations", hotelReservationsRouter);
+  app.use("/api/asoebi-payments", asoebiPaymentsRouter);
 
   const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
     if (err instanceof multer.MulterError || err instanceof Error) {

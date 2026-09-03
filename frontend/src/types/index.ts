@@ -132,3 +132,37 @@ export interface PaymentModeInfo {
   mode: "manual" | "paystack";
   paystackPublicKey?: string;
 }
+
+export interface AsoebiPayment {
+  _id: string;
+  name: string;
+  phone: string;
+  gender: "M" | "F" | null;
+  targetAmount: number;
+  guestId?: string;
+  createdAt: string;
+}
+
+export interface AsoebiPaymentWithTotals extends AsoebiPayment {
+  confirmedTotal: number;
+  pendingCount: number;
+}
+
+export interface AsoebiContribution {
+  _id: string;
+  paymentId: string;
+  amount: number;
+  receiptUrl: string;
+  status: "pending" | "approved" | "rejected";
+  createdAt: string;
+}
+
+export interface AsoebiContributionWithPayment extends AsoebiContribution {
+  payment: { name: string; phone: string } | null;
+}
+
+export interface AsoebiLookupResponse {
+  payment: AsoebiPayment;
+  contributions: AsoebiContribution[];
+  confirmedTotal: number;
+}

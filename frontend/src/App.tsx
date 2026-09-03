@@ -15,6 +15,7 @@ import { OrderOfTheDay } from "./pages/OrderOfTheDay";
 import { Photoshoot } from "./pages/Photoshoot";
 import { Wishes } from "./pages/Wishes";
 import { HotelReservation } from "./pages/HotelReservation";
+import { AsoebiPayment } from "./pages/AsoebiPayment";
 import { AdminLogin } from "./pages/admin/Login";
 import { AdminDashboard } from "./pages/admin/Dashboard";
 import { AdminGuests } from "./pages/admin/Guests";
@@ -23,6 +24,7 @@ import { AdminPhotos } from "./pages/admin/Photos";
 import { AdminSettings } from "./pages/admin/Settings";
 import { AdminWishes } from "./pages/admin/Wishes";
 import { AdminHotelReservations } from "./pages/admin/HotelReservations";
+import { AdminAsoebiPayments } from "./pages/admin/AsoebiPayments";
 
 function App() {
   const [showSplash, setShowSplash] = useState(shouldShowSplash);
@@ -46,6 +48,7 @@ function App() {
           <Route path="photos" element={<PhotoWall />} />
           <Route path="wishes" element={<Wishes />} />
           <Route path="hotel" element={<HotelReservation />} />
+          <Route path="asoebi-payment" element={<AsoebiPayment />} />
         </Route>
 
         <Route path="admin/login" element={<AdminLogin />} />
@@ -57,6 +60,7 @@ function App() {
             <Route path="admin/photos" element={<AdminPhotos />} />
             <Route path="admin/wishes" element={<AdminWishes />} />
             <Route path="admin/hotel-reservations" element={<AdminHotelReservations />} />
+            <Route path="admin/asoebi-payments" element={<AdminAsoebiPayments />} />
             <Route path="admin/settings" element={<AdminSettings />} />
           </Route>
         </Route>

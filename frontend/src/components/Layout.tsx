@@ -7,6 +7,7 @@ const NAV_LINKS = [
   { to: "/rsvp", label: "RSVP" },
   { to: "/gifts", label: "Gifts" },
   { to: "/hotel", label: "Hotel Reservations" },
+  { to: "/asoebi-payment", label: "Aso-Ebi Payment" },
   { to: "/photos", label: "Photo Wall" },
 ];
 
