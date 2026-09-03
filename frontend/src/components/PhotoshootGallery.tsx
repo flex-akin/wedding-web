@@ -36,7 +36,7 @@ export function PhotoshootGallery({ images }: { images: PhotoshootImage[] }) {
           {tab === "pre-wedding" ? "Pre-wedding photos coming soon." : "No photos here yet."}
         </p>
       ) : (
-        <div className="mt-6 columns-1 gap-4 sm:columns-2">
+        <div className="mt-6 columns-1 gap-4 sm:columns-2 lg:columns-3">
           {filtered.map((img, i) => (
             <div
               key={`${img.url}-${i}`}
