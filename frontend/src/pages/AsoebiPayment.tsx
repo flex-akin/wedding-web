@@ -78,6 +78,7 @@ export function AsoebiPayment() {
   const targetAmount = data?.payment.targetAmount ?? 0;
   const confirmed = data?.confirmedTotal ?? 0;
   const progressPct = targetAmount > 0 ? Math.min(100, Math.round((confirmed / targetAmount) * 100)) : 0;
+  const remaining = Math.max(0, targetAmount - confirmed);
 
   return (
     <div className="mx-auto max-w-lg px-4 py-16">
@@ -125,6 +126,9 @@ export function AsoebiPayment() {
                 </div>
                 <p className="mt-2 font-mono text-xs text-ink/60">
                   {formatNaira(confirmed)} of {formatNaira(targetAmount)} confirmed ({progressPct}%)
+                </p>
+                <p className="mt-1 font-mono text-sm text-terracotta">
+                  {remaining > 0 ? `${formatNaira(remaining)} left to pay` : "Fully paid — thank you!"}
                 </p>
               </>
             ) : (

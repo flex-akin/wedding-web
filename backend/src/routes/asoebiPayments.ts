@@ -1,12 +1,17 @@
 import { Router } from "express";
 import { Types } from "mongoose";
-import { AsoebiPaymentModel, GENDER_TARGETS } from "../models/AsoebiPayment";
+import { AsoebiPaymentModel, targetAmountFor } from "../models/AsoebiPayment";
 import { AsoebiContributionModel } from "../models/AsoebiContribution";
 import { requireAdmin } from "../middleware/requireAdmin";
 import { uploadReceipt } from "../middleware/uploadReceipt";
 import { toStoredPhone } from "../utils/phone";
 
 export const asoebiPaymentsRouter = Router();
+
+function withTarget<T extends { gender?: "M" | "F" | null; toObject?: () => object }>(payment: T) {
+  const plain = typeof payment.toObject === "function" ? payment.toObject() : payment;
+  return { ...plain, targetAmount: targetAmountFor(payment.gender) };
+}
 
 async function confirmedTotal(paymentId: string): Promise<number> {
   const result = await AsoebiContributionModel.aggregate([
@@ -30,7 +35,7 @@ asoebiPaymentsRouter.get("/lookup", async (req, res) => {
     .filter((c) => c.status === "approved")
     .reduce((sum, c) => sum + c.amount, 0);
 
-  res.json({ payment, contributions, confirmedTotal: confirmed });
+  res.json({ payment: withTarget(payment), contributions, confirmedTotal: confirmed });
 });
 
 // Public: submit a contribution (amount + receipt) — starts as "pending"
@@ -64,7 +69,7 @@ asoebiPaymentsRouter.get("/", requireAdmin, async (_req, res) => {
   const payments = await AsoebiPaymentModel.find().sort({ createdAt: -1 });
   const withTotals = await Promise.all(
     payments.map(async (p) => ({
-      ...p.toObject(),
+      ...withTarget(p),
       confirmedTotal: await confirmedTotal(String(p._id)),
       pendingCount: await AsoebiContributionModel.countDocuments({ paymentId: p._id, status: "pending" }),
     }))
@@ -83,23 +88,19 @@ asoebiPaymentsRouter.post("/", requireAdmin, async (req, res) => {
     name: name.trim(),
     phone: stored,
     gender: gender ?? null,
-    targetAmount: gender ? GENDER_TARGETS[gender] : 0,
   });
-  res.status(201).json(payment);
+  res.status(201).json(withTarget(payment));
 });
 
-// Admin: update a contributor (mainly to set gender, which sets the target)
+// Admin: update a contributor (mainly to set gender)
 asoebiPaymentsRouter.patch("/:id", requireAdmin, async (req, res) => {
   const { gender, name } = req.body as { gender?: "M" | "F" | null; name?: string };
   const patch: Record<string, unknown> = {};
   if (name !== undefined) patch.name = name;
-  if (gender !== undefined) {
-    patch.gender = gender;
-    patch.targetAmount = gender ? GENDER_TARGETS[gender] : 0;
-  }
+  if (gender !== undefined) patch.gender = gender;
   const payment = await AsoebiPaymentModel.findByIdAndUpdate(req.params.id, patch, { new: true });
   if (!payment) return res.status(404).json({ error: "Not found" });
-  res.json(payment);
+  res.json(withTarget(payment));
 });
 
 // Admin: remove a contributor
