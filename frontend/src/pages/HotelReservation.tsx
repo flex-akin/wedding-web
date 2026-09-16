@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { apiRequest } from "../api/client";
+import { NameFields, joinName } from "../components/NameFields";
 
 const BUDGET_OPTIONS = [
   "Under ₦30,000",
@@ -10,7 +11,8 @@ const BUDGET_OPTIONS = [
 ];
 
 export function HotelReservation() {
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [contact, setContact] = useState("");
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
@@ -28,7 +30,15 @@ export function HotelReservation() {
     try {
       await apiRequest("/hotel-reservations", {
         method: "POST",
-        body: { name, contact, checkIn, checkOut, rooms, budgetPerRoom, notes: notes || undefined },
+        body: {
+          name: joinName(firstName, lastName),
+          contact,
+          checkIn,
+          checkOut,
+          rooms,
+          budgetPerRoom,
+          notes: notes || undefined,
+        },
       });
       setSubmitted(true);
     } catch (e) {
@@ -52,12 +62,11 @@ export function HotelReservation() {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="mt-10 space-y-4">
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Your name"
-            required
-            className="w-full rounded-lg border border-sage/25 bg-white px-4 py-3 text-sm"
+          <NameFields
+            firstName={firstName}
+            lastName={lastName}
+            onFirstNameChange={setFirstName}
+            onLastNameChange={setLastName}
           />
           <input
             type="tel"

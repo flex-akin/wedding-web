@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { apiRequest } from "../api/client";
+import { NameFields, joinName } from "../components/NameFields";
 import { useSettings } from "../lib/useSettings";
 import type { AsoEbiOrder, PaymentModeInfo } from "../types";
 
@@ -11,7 +12,8 @@ export function AsoEbi() {
   const { settings } = useSettings();
   const [paymentInfo, setPaymentInfo] = useState<PaymentModeInfo | null>(null);
 
-  const [guestName, setGuestName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [contact, setContact] = useState("");
   const [email, setEmail] = useState("");
   const [color, setColor] = useState("");
@@ -43,7 +45,16 @@ export function AsoEbi() {
     try {
       const response = await apiRequest<{ order: AsoEbiOrder; authorizationUrl?: string }>("/aso-ebi", {
         method: "POST",
-        body: { guestName, contact, email: email || undefined, color, fabric, size, quantity, notes },
+        body: {
+          guestName: joinName(firstName, lastName),
+          contact,
+          email: email || undefined,
+          color,
+          fabric,
+          size,
+          quantity,
+          notes,
+        },
       });
       if (response.authorizationUrl) {
         window.location.href = response.authorizationUrl;
@@ -86,11 +97,12 @@ export function AsoEbi() {
       <form onSubmit={handleSubmit} className="mt-10 space-y-5">
         <div>
           <label className="block font-mono text-xs text-sage">Your name</label>
-          <input
-            required
-            value={guestName}
-            onChange={(e) => setGuestName(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-sage/25 bg-white px-4 py-3 text-sm"
+          <NameFields
+            firstName={firstName}
+            lastName={lastName}
+            onFirstNameChange={setFirstName}
+            onLastNameChange={setLastName}
+            className="mt-1"
           />
         </div>
 

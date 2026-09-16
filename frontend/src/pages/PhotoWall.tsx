@@ -4,6 +4,7 @@ import { apiRequest } from "../api/client";
 import { HeartButton } from "../components/HeartButton";
 import { PhotoLightbox } from "../components/PhotoLightbox";
 import { NamePrompt } from "../components/NamePrompt";
+import { NameFields, joinName } from "../components/NameFields";
 import { ChallengeBadge } from "../components/ChallengeBadge";
 import { Confetti } from "../components/Confetti";
 import { getStoredName, setStoredName } from "../lib/guestName";
@@ -22,7 +23,10 @@ export function PhotoWall() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [confettiKey, setConfettiKey] = useState<number | null>(null);
 
-  const [uploaderName, setUploaderName] = useState(() => getStoredName() ?? "");
+  const [uploaderFirstName, setUploaderFirstName] = useState(() => (getStoredName() ?? "").split(" ")[0] ?? "");
+  const [uploaderLastName, setUploaderLastName] = useState(
+    () => (getStoredName() ?? "").split(" ").slice(1).join(" ")
+  );
   const [challengeTag, setChallengeTag] = useState("");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -107,7 +111,8 @@ export function PhotoWall() {
   function handleNameSubmit(name: string) {
     setStoredName(name);
     setMyName(name);
-    setUploaderName((current) => current || name);
+    setUploaderFirstName((current) => current || name.split(" ")[0] || "");
+    setUploaderLastName((current) => current || name.split(" ").slice(1).join(" "));
     if (pendingLikePhotoId) {
       doLike(pendingLikePhotoId, name);
       setPendingLikePhotoId(null);
@@ -123,6 +128,7 @@ export function PhotoWall() {
     try {
       const form = new FormData();
       form.append("photo", file);
+      const uploaderName = joinName(uploaderFirstName, uploaderLastName);
       if (uploaderName) {
         form.append("uploadedBy", uploaderName);
         setStoredName(uploaderName);
@@ -175,21 +181,20 @@ export function PhotoWall() {
       </div>
 
       <form onSubmit={handleUpload} className="mx-auto mt-8 flex max-w-md flex-col gap-3">
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <input
-            value={uploaderName}
-            onChange={(e) => setUploaderName(e.target.value)}
-            placeholder="Your name (optional)"
-            className="flex-1 rounded-lg border border-sage/25 bg-white px-4 py-3 text-sm"
-          />
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            required
-            className="flex-1 rounded-lg border border-sage/25 bg-white px-3 py-2.5 text-sm file:mr-2 file:rounded-md file:border-0 file:bg-sage file:px-3 file:py-1.5 file:text-ivory"
-          />
-        </div>
+        <NameFields
+          firstName={uploaderFirstName}
+          lastName={uploaderLastName}
+          onFirstNameChange={setUploaderFirstName}
+          onLastNameChange={setUploaderLastName}
+          required={false}
+        />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          required
+          className="w-full rounded-lg border border-sage/25 bg-white px-3 py-2.5 text-sm file:mr-2 file:rounded-md file:border-0 file:bg-sage file:px-3 file:py-1.5 file:text-ivory"
+        />
         <select
           value={challengeTag}
           onChange={(e) => setChallengeTag(e.target.value)}

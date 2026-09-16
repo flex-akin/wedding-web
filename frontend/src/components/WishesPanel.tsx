@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { apiRequest } from "../api/client";
+import { NameFields, joinName } from "./NameFields";
 import type { Wish } from "../types";
 
 export function WishesPanel() {
   const [wishes, setWishes] = useState<Wish[]>([]);
   const [loading, setLoading] = useState(true);
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +20,8 @@ export function WishesPanel() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim() || !message.trim()) return;
+    const name = joinName(firstName, lastName);
+    if (!name || !message.trim()) return;
     setSubmitting(true);
     setError(null);
     try {
@@ -35,12 +38,11 @@ export function WishesPanel() {
   return (
     <>
       <form onSubmit={handleSubmit} className="mx-auto flex max-w-md flex-col gap-3">
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Your name"
-          required
-          className="rounded-lg border border-sage/25 bg-white px-4 py-3 text-sm"
+        <NameFields
+          firstName={firstName}
+          lastName={lastName}
+          onFirstNameChange={setFirstName}
+          onLastNameChange={setLastName}
         />
         <textarea
           value={message}
@@ -60,7 +62,7 @@ export function WishesPanel() {
         {error && <p className="text-center text-sm text-red-600">{error}</p>}
       </form>
 
-      <div className="mx-auto mt-12 max-w-md space-y-4">
+      <div className="mx-auto mt-12 grid max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {loading && <p className="text-center text-sm text-ink/50">Loading…</p>}
         {!loading && wishes.length === 0 && (
           <p className="text-center text-sm text-ink/40">No wishes yet. Be the first!</p>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { apiRequest } from "../api/client";
+import { NameFields, joinName } from "../components/NameFields";
 
 interface GuestMatch {
   name: string;
@@ -18,7 +19,8 @@ export function RsvpLookup() {
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [requestName, setRequestName] = useState("");
+  const [requestFirstName, setRequestFirstName] = useState("");
+  const [requestLastName, setRequestLastName] = useState("");
   const [requesting, setRequesting] = useState(false);
   const [requestSubmitted, setRequestSubmitted] = useState(false);
   const [requestError, setRequestError] = useState<string | null>(null);
@@ -41,13 +43,14 @@ export function RsvpLookup() {
 
   async function handleRequestSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!requestName.trim() || !query.trim()) return;
+    const requestName = joinName(requestFirstName, requestLastName);
+    if (!requestName || !query.trim()) return;
     setRequesting(true);
     setRequestError(null);
     try {
       await apiRequest("/guest-requests", {
         method: "POST",
-        body: { name: requestName.trim(), phone: query.trim() },
+        body: { name: requestName, phone: query.trim() },
       });
       setRequestSubmitted(true);
     } catch (e) {
@@ -129,12 +132,12 @@ export function RsvpLookup() {
                   <p className="mt-1 text-xs text-ink/60">
                     If you were invited but your number isn't showing up, submit it here for approval.
                   </p>
-                  <input
-                    required
-                    value={requestName}
-                    onChange={(e) => setRequestName(e.target.value)}
-                    placeholder="Your name"
-                    className="mt-3 w-full rounded-lg border border-sage/25 bg-white px-4 py-2.5 text-sm"
+                  <NameFields
+                    firstName={requestFirstName}
+                    lastName={requestLastName}
+                    onFirstNameChange={setRequestFirstName}
+                    onLastNameChange={setRequestLastName}
+                    className="mt-3"
                   />
                   <input
                     disabled

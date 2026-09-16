@@ -142,7 +142,7 @@ export function Home() {
 
       {settings && (
         <section className="border-y border-sage/10 bg-white/40 px-4 py-16">
-          <div className="mx-auto max-w-2xl text-center">
+          <div className="mx-auto max-w-5xl text-center">
             <h2 className="text-2xl sm:text-3xl">Wishes</h2>
             <p className="mx-auto mt-2 max-w-md text-sm text-ink/60">
               Leave the couple a note for the journey ahead.

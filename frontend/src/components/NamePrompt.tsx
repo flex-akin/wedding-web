@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { NameFields, joinName } from "./NameFields";
 
 interface NamePromptProps {
   onSubmit: (name: string) => void;
@@ -6,13 +7,14 @@ interface NamePromptProps {
 }
 
 export function NamePrompt({ onSubmit, onCancel }: NamePromptProps) {
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const trimmed = name.trim();
-    if (!trimmed) return;
-    onSubmit(trimmed);
+    const name = joinName(firstName, lastName);
+    if (!name) return;
+    onSubmit(name);
   }
 
   return (
@@ -29,13 +31,16 @@ export function NamePrompt({ onSubmit, onCancel }: NamePromptProps) {
       >
         <p className="font-display text-xl">What's your name?</p>
         <p className="mt-1 text-sm text-ink/60">So we know who to thank for the love.</p>
-        <input
-          autoFocus
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Your name"
-          className="mt-4 w-full rounded-lg border border-sage/25 bg-white px-4 py-3 text-sm"
-        />
+        <div className="mt-4">
+          <NameFields
+            firstName={firstName}
+            lastName={lastName}
+            onFirstNameChange={setFirstName}
+            onLastNameChange={setLastName}
+            stack
+            autoFocus
+          />
+        </div>
         <div className="mt-4 flex gap-2">
           <button
             type="button"

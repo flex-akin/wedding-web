@@ -58,6 +58,11 @@ export interface GiftAccount {
   accountName: string;
   accountNumber: string;
   bankName: string;
+  currency?: "NGN" | "USD";
+  accountType?: string;
+  bankAddress?: string;
+  wireRouting?: string;
+  achRouting?: string;
 }
 
 export interface ColorOfDay {

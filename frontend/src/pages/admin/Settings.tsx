@@ -9,7 +9,17 @@ function toDateInputValue(iso?: string) {
 
 const emptyVenue: VenueInfo = { name: "", address: "", mapsUrl: "", time: "" };
 const COORD_REGEX = /@(-?\d+\.\d+),(-?\d+\.\d+)/;
-const emptyGiftAccount: GiftAccount = { label: "", accountName: "", accountNumber: "", bankName: "" };
+const emptyGiftAccount: GiftAccount = {
+  label: "",
+  accountName: "",
+  accountNumber: "",
+  bankName: "",
+  currency: "NGN",
+  accountType: "",
+  bankAddress: "",
+  wireRouting: "",
+  achRouting: "",
+};
 const emptyProgramEvent: ProgramEvent = { name: "", time: "", note: "", colors: [] };
 const emptyColorOfDay: ColorOfDay = { label: "", hex: "#4A5D48" };
 const emptyPhotoshootImage: PhotoshootImage = { url: "", category: "proposal" };
@@ -432,6 +442,62 @@ export function AdminSettings() {
                 }}
                 className={inputClass}
               />
+              <select
+                value={account.currency ?? "NGN"}
+                onChange={(e) => {
+                  const next = [...form.giftAccounts];
+                  next[i] = { ...next[i], currency: e.target.value as "NGN" | "USD" };
+                  setForm({ ...form, giftAccounts: next });
+                }}
+                className={inputClass}
+              >
+                <option value="NGN">NGN</option>
+                <option value="USD">USD</option>
+              </select>
+              {account.currency === "USD" && (
+                <>
+                  <input
+                    placeholder="Account type (e.g. Checking)"
+                    value={account.accountType ?? ""}
+                    onChange={(e) => {
+                      const next = [...form.giftAccounts];
+                      next[i] = { ...next[i], accountType: e.target.value };
+                      setForm({ ...form, giftAccounts: next });
+                    }}
+                    className={inputClass}
+                  />
+                  <input
+                    placeholder="Wire routing number"
+                    value={account.wireRouting ?? ""}
+                    onChange={(e) => {
+                      const next = [...form.giftAccounts];
+                      next[i] = { ...next[i], wireRouting: e.target.value };
+                      setForm({ ...form, giftAccounts: next });
+                    }}
+                    className={inputClass}
+                  />
+                  <input
+                    placeholder="ACH routing number"
+                    value={account.achRouting ?? ""}
+                    onChange={(e) => {
+                      const next = [...form.giftAccounts];
+                      next[i] = { ...next[i], achRouting: e.target.value };
+                      setForm({ ...form, giftAccounts: next });
+                    }}
+                    className={inputClass}
+                  />
+                  <input
+                    placeholder="Bank address"
+                    value={account.bankAddress ?? ""}
+                    onChange={(e) => {
+                      const next = [...form.giftAccounts];
+                      next[i] = { ...next[i], bankAddress: e.target.value };
+                      setForm({ ...form, giftAccounts: next });
+                    }}
+                    className={`${inputClass} sm:col-span-2`}
+                  />
+                </>
+              )}
               <button
                 type="button"
                 onClick={() => setForm({ ...form, giftAccounts: form.giftAccounts.filter((_, idx) => idx !== i) })}
