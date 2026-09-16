@@ -82,12 +82,17 @@ guestsRouter.post("/", requireAdmin, async (req, res) => {
   };
   if (!name?.trim()) return res.status(400).json({ error: "name is required" });
 
+  const storedPhone = toStoredPhone(phone);
+  if (storedPhone && (await GuestModel.exists({ phone: storedPhone }))) {
+    return res.status(409).json({ error: "A guest with that phone number already exists" });
+  }
+
   const slug = await uniqueSlug(slugify(name));
   const guest = await GuestModel.create({
     name: name.trim(),
     slug,
     partySize: partySize && partySize > 0 ? partySize : 1,
-    phone: toStoredPhone(phone),
+    phone: storedPhone,
     email,
   });
   res.status(201).json(guest);
@@ -113,13 +118,21 @@ guestsRouter.post("/bulk", requireAdmin, async (req, res) => {
   }
 
   const created = [];
+  const skipped: { name: string; phone: string }[] = [];
+  const seenPhones = new Set<string>();
   for (const row of rows) {
+    const storedPhone = toStoredPhone(row.phone);
+    if (storedPhone) {
+      if (seenPhones.has(storedPhone) || (await GuestModel.exists({ phone: storedPhone }))) {
+        skipped.push({ name: row.name, phone: storedPhone });
+        continue;
+      }
+      seenPhones.add(storedPhone);
+    }
     const slug = await uniqueSlug(slugify(row.name));
-    created.push(
-      await GuestModel.create({ name: row.name, slug, partySize: 1, phone: toStoredPhone(row.phone) })
-    );
+    created.push(await GuestModel.create({ name: row.name, slug, partySize: 1, phone: storedPhone }));
   }
-  res.status(201).json(created);
+  res.status(201).json({ created, skipped });
 });
 
 // Admin: update a guest

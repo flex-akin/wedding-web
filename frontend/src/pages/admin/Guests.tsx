@@ -21,6 +21,7 @@ export function AdminGuests() {
   const [search, setSearch] = useState("");
   const [qrSlug, setQrSlug] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   function load() {
     setLoading(true);
@@ -60,11 +61,18 @@ export function AdminGuests() {
   async function handleBulkAdd(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setNotice(null);
     const names = bulkNames.split("\n").map((n) => n.trim()).filter(Boolean);
     if (names.length === 0) return;
     try {
-      await apiRequest("/guests/bulk", { method: "POST", admin: true, body: { names } });
+      const { created, skipped } = await apiRequest<{ created: Guest[]; skipped: { name: string; phone: string }[] }>(
+        "/guests/bulk",
+        { method: "POST", admin: true, body: { names } }
+      );
       setBulkNames("");
+      if (skipped.length > 0) {
+        setNotice(`Added ${created.length}, skipped ${skipped.length} duplicate phone number(s).`);
+      }
       load();
     } catch (e) {
       setError((e as Error).message);
@@ -74,6 +82,7 @@ export function AdminGuests() {
   async function handleBulkPhoneAdd(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setNotice(null);
     const entries = bulkPhoneRows
       .split("\n")
       .map((line) => {
@@ -83,8 +92,18 @@ export function AdminGuests() {
       .filter((entry) => entry.name);
     if (entries.length === 0) return;
     try {
-      await apiRequest("/guests/bulk", { method: "POST", admin: true, body: { entries } });
+      const { created, skipped } = await apiRequest<{ created: Guest[]; skipped: { name: string; phone: string }[] }>(
+        "/guests/bulk",
+        { method: "POST", admin: true, body: { entries } }
+      );
       setBulkPhoneRows("");
+      if (skipped.length > 0) {
+        setNotice(
+          `Added ${created.length}, skipped ${skipped.length} duplicate phone number(s): ${skipped
+            .map((s) => s.name)
+            .join(", ")}.`
+        );
+      }
       load();
     } catch (e) {
       setError((e as Error).message);
@@ -163,6 +182,7 @@ export function AdminGuests() {
       </form>
 
       {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+      {notice && <p className="mt-3 text-sm text-sage">{notice}</p>}
 
       <input
         value={search}

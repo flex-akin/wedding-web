@@ -84,6 +84,10 @@ asoebiPaymentsRouter.post("/", requireAdmin, async (req, res) => {
     return res.status(400).json({ error: "name and phone are required" });
   }
   const stored = toStoredPhone(phone);
+  if (!stored) return res.status(400).json({ error: "Enter a valid phone number" });
+  if (await AsoebiPaymentModel.exists({ phone: stored })) {
+    return res.status(409).json({ error: "A contributor with that phone number already exists" });
+  }
   const payment = await AsoebiPaymentModel.create({
     name: name.trim(),
     phone: stored,
