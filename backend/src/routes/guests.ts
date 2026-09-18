@@ -42,13 +42,15 @@ guestsRouter.post("/slug/:slug/rsvp", async (req, res) => {
   const guest = await GuestModel.findOne({ slug: req.params.slug.toLowerCase() });
   if (!guest) return res.status(404).json({ error: "Guest not found" });
 
-  const { attendingCeremony, attendingReception, plusOnes, notes } = req.body as {
+  const { name, attendingCeremony, attendingReception, plusOnes, notes } = req.body as {
+    name?: string;
     attendingCeremony?: boolean;
     attendingReception?: boolean;
     plusOnes?: { name: string }[];
     notes?: string;
   };
 
+  if (name?.trim()) guest.name = name.trim();
   guest.attendingCeremony = Boolean(attendingCeremony);
   guest.attendingReception = Boolean(attendingReception);
   guest.rsvpStatus = guest.attendingCeremony || guest.attendingReception ? "attending" : "declined";

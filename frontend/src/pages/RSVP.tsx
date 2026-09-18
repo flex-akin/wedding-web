@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { apiRequest } from "../api/client";
 import { AccessCard } from "../components/AccessCard";
+import { NameFields, joinName } from "../components/NameFields";
 import { useSettings } from "../lib/useSettings";
 import type { Guest } from "../types";
 
@@ -14,6 +15,8 @@ export function RSVP() {
   const [submitting, setSubmitting] = useState(false);
   const [editing, setEditing] = useState(false);
 
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [attendingCeremony, setAttendingCeremony] = useState(false);
   const [attendingReception, setAttendingReception] = useState(false);
   const [plusOneNames, setPlusOneNames] = useState<string[]>([]);
@@ -25,6 +28,8 @@ export function RSVP() {
       .then((g) => {
         setGuest(g);
         setEditing(g.rsvpStatus === "pending");
+        setFirstName(g.name.split(" ")[0] ?? "");
+        setLastName(g.name.split(" ").slice(1).join(" "));
         setAttendingCeremony(g.attendingCeremony);
         setAttendingReception(g.attendingReception);
         setPlusOneNames(g.plusOnes.map((p) => p.name));
@@ -43,6 +48,7 @@ export function RSVP() {
       const updated = await apiRequest<Guest>(`/guests/slug/${slug}/rsvp`, {
         method: "POST",
         body: {
+          name: joinName(firstName, lastName),
           attendingCeremony,
           attendingReception,
           plusOnes: plusOneNames.filter((n) => n.trim()).map((name) => ({ name })),
@@ -117,6 +123,17 @@ export function RSVP() {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="mt-10 space-y-6">
+          <div>
+            <label className="block font-mono text-xs text-sage">Your name</label>
+            <NameFields
+              firstName={firstName}
+              lastName={lastName}
+              onFirstNameChange={setFirstName}
+              onLastNameChange={setLastName}
+              className="mt-1"
+            />
+          </div>
+
           <fieldset className="space-y-3">
             <label className="block font-mono text-xs text-sage">Which events will you join us for?</label>
             <button
