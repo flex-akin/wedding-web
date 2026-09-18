@@ -6,6 +6,10 @@ function formatNaira(n: number) {
   return `₦${n.toLocaleString()}`;
 }
 
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
+
 export function AdminAsoebiPayments() {
   const [payments, setPayments] = useState<AsoebiPaymentWithTotals[]>([]);
   const [pending, setPending] = useState<AsoebiContributionWithPayment[]>([]);
@@ -135,6 +139,7 @@ export function AdminAsoebiPayments() {
                 <div>
                   <p className="font-medium">{p.name}</p>
                   <p className="font-mono text-xs text-ink/50">{p.phone}</p>
+                  <p className="mt-0.5 font-mono text-xs text-ink/40">Added {formatDate(p.createdAt)}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button

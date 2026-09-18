@@ -37,6 +37,7 @@ export function AdminHotelReservations() {
               <div>
                 <p className="font-medium">{r.name}</p>
                 <p className="font-mono text-xs text-ink/50">{r.contact}</p>
+                <p className="mt-0.5 font-mono text-xs text-ink/40">Requested {formatDate(r.createdAt)}</p>
               </div>
               <span
                 className={`rounded-full px-3 py-1 font-mono text-xs ${
