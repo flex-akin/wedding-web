@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { apiRequest } from "../../api/client";
 import type { AsoebiContributionWithPayment, AsoebiPaymentWithTotals } from "../../types";
 
@@ -10,6 +10,18 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
 }
 
+function isPaid(p: AsoebiPaymentWithTotals) {
+  return p.targetAmount > 0 && p.confirmedTotal >= p.targetAmount;
+}
+
+const TABS = [
+  { id: "all", label: "All" },
+  { id: "paid", label: "Paid" },
+  { id: "unpaid", label: "Not Paid" },
+] as const;
+
+type TabId = (typeof TABS)[number]["id"];
+
 export function AdminAsoebiPayments() {
   const [payments, setPayments] = useState<AsoebiPaymentWithTotals[]>([]);
   const [pending, setPending] = useState<AsoebiContributionWithPayment[]>([]);
@@ -17,6 +29,7 @@ export function AdminAsoebiPayments() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [tab, setTab] = useState<TabId>("all");
 
   function load() {
     setLoading(true);
@@ -61,6 +74,13 @@ export function AdminAsoebiPayments() {
     await apiRequest(`/asoebi-payments/${id}`, { method: "DELETE", admin: true });
     load();
   }
+
+  const paidCount = useMemo(() => payments.filter(isPaid).length, [payments]);
+  const filteredPayments = useMemo(() => {
+    if (tab === "paid") return payments.filter(isPaid);
+    if (tab === "unpaid") return payments.filter((p) => !isPaid(p));
+    return payments;
+  }, [payments, tab]);
 
   return (
     <div>
@@ -131,50 +151,82 @@ export function AdminAsoebiPayments() {
       </section>
 
       <section className="mt-8">
-        <h2 className="font-mono text-sm text-terracotta">Contributors ({payments.length})</h2>
-        <div className="mt-3 space-y-3">
-          {payments.map((p) => (
-            <div key={p._id} className="rounded-xl border border-sage/15 bg-white/60 p-4">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  <p className="font-medium">{p.name}</p>
-                  <p className="font-mono text-xs text-ink/50">{p.phone}</p>
-                  <p className="mt-0.5 font-mono text-xs text-ink/40">Added {formatDate(p.createdAt)}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setGender(p._id, "M")}
-                    className={`rounded-full px-3 py-1 font-mono text-xs ${
-                      p.gender === "M" ? "bg-sage text-ivory" : "border border-sage/30 text-sage"
-                    }`}
-                  >
-                    M
-                  </button>
-                  <button
-                    onClick={() => setGender(p._id, "F")}
-                    className={`rounded-full px-3 py-1 font-mono text-xs ${
-                      p.gender === "F" ? "bg-terracotta text-ivory" : "border border-terracotta/30 text-terracotta"
-                    }`}
-                  >
-                    F
-                  </button>
-                </div>
-              </div>
-              <p className="mt-2 font-mono text-xs text-ink/60">
-                {p.targetAmount > 0
-                  ? `${formatNaira(p.confirmedTotal)} of ${formatNaira(p.targetAmount)} confirmed`
-                  : "Gender not set — no target yet"}
-                {p.pendingCount > 0 && ` · ${p.pendingCount} pending`}
-              </p>
-              <button
-                onClick={() => handleDelete(p._id)}
-                className="mt-2 rounded-md border border-red-300 px-3 py-1.5 font-mono text-xs text-red-600 hover:bg-red-50"
-              >
-                Remove
-              </button>
-            </div>
+        <h2 className="font-mono text-sm text-terracotta">
+          Contributors ({payments.length}) · {paidCount} paid
+        </h2>
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTab(t.id)}
+              className={`rounded-full px-4 py-2 font-mono text-xs transition-colors ${
+                tab === t.id ? "bg-sage text-ivory" : "border border-sage/30 text-sage hover:bg-sage/10"
+              }`}
+            >
+              {t.label}
+            </button>
           ))}
-          {!loading && payments.length === 0 && <p className="text-sm text-ink/40">No contributors yet.</p>}
+        </div>
+
+        <div className="mt-3 space-y-3">
+          {filteredPayments.map((p) => {
+            const paid = isPaid(p);
+            return (
+              <div key={p._id} className="rounded-xl border border-sage/15 bg-white/60 p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{p.name}</p>
+                      {paid && (
+                        <span className="rounded-full bg-sage/15 px-2 py-0.5 font-mono text-[10px] text-sage">
+                          ✓ Paid
+                        </span>
+                      )}
+                    </div>
+                    <p className="font-mono text-xs text-ink/50">{p.phone}</p>
+                    <p className="mt-0.5 font-mono text-xs text-ink/40">Added {formatDate(p.createdAt)}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setGender(p._id, "M")}
+                      className={`rounded-full px-3 py-1 font-mono text-xs ${
+                        p.gender === "M" ? "bg-sage text-ivory" : "border border-sage/30 text-sage"
+                      }`}
+                    >
+                      M
+                    </button>
+                    <button
+                      onClick={() => setGender(p._id, "F")}
+                      className={`rounded-full px-3 py-1 font-mono text-xs ${
+                        p.gender === "F" ? "bg-terracotta text-ivory" : "border border-terracotta/30 text-terracotta"
+                      }`}
+                    >
+                      F
+                    </button>
+                  </div>
+                </div>
+                <p className="mt-2 font-mono text-xs text-ink/60">
+                  {p.targetAmount > 0
+                    ? `${formatNaira(p.confirmedTotal)} of ${formatNaira(p.targetAmount)} confirmed`
+                    : "Gender not set — no target yet"}
+                  {p.pendingCount > 0 && ` · ${p.pendingCount} pending`}
+                </p>
+                <button
+                  onClick={() => handleDelete(p._id)}
+                  className="mt-2 rounded-md border border-red-300 px-3 py-1.5 font-mono text-xs text-red-600 hover:bg-red-50"
+                >
+                  Remove
+                </button>
+              </div>
+            );
+          })}
+          {!loading && filteredPayments.length === 0 && (
+            <p className="text-sm text-ink/40">
+              {payments.length === 0 ? "No contributors yet." : "Nobody in this tab yet."}
+            </p>
+          )}
         </div>
       </section>
     </div>
