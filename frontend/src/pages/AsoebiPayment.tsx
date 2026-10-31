@@ -1,11 +1,23 @@
 import { useRef, useState } from "react";
 import { apiRequest } from "../api/client";
-import type { AsoebiLookupResponse } from "../types";
+import type { AsoebiLookupResponse, AsoebiPackage, AsoebiPartnerOption } from "../types";
 
 const statusStyles: Record<string, string> = {
   pending: "bg-gold/15 text-gold",
   approved: "bg-sage/15 text-sage",
   rejected: "bg-terracotta/15 text-terracotta",
+};
+
+const PACKAGE_OPTIONS: { id: AsoebiPackage; label: string; description: string }[] = [
+  { id: "part", label: "Part Package", description: "₦30,000" },
+  { id: "full", label: "Full Package", description: "₦45,000 men / ₦40,000 women" },
+  { id: "couple", label: "Couples Package", description: "₦70,000 for two" },
+];
+
+const PACKAGE_LABELS: Record<AsoebiPackage, string> = {
+  part: "Part Package",
+  full: "Full Package",
+  couple: "Couples Package",
 };
 
 function formatNaira(n: number) {
@@ -25,6 +37,11 @@ export function AsoebiPayment() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
+  const [chosenPackage, setChosenPackage] = useState<AsoebiPackage | "">("");
+  const [partnerOptions, setPartnerOptions] = useState<AsoebiPartnerOption[]>([]);
+  const [loadingPartners, setLoadingPartners] = useState(false);
+  const [partnerId, setPartnerId] = useState("");
+
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     if (!phone.trim()) return;
@@ -36,6 +53,8 @@ export function AsoebiPayment() {
         `/asoebi-payments/lookup?phone=${encodeURIComponent(phone.trim())}`
       );
       setData(response);
+      setChosenPackage("");
+      setPartnerId("");
     } catch (e) {
       setData(null);
       setError((e as Error).message);
@@ -45,17 +64,38 @@ export function AsoebiPayment() {
     }
   }
 
+  async function handlePackageSelect(pkg: AsoebiPackage) {
+    setChosenPackage(pkg);
+    if (pkg === "couple" && partnerOptions.length === 0 && data) {
+      setLoadingPartners(true);
+      try {
+        const names = await apiRequest<AsoebiPartnerOption[]>("/asoebi-payments/names");
+        setPartnerOptions(names.filter((n) => n._id !== data.payment._id));
+      } finally {
+        setLoadingPartners(false);
+      }
+    }
+  }
+
   async function handleSubmitProof(e: React.FormEvent) {
     e.preventDefault();
     if (!data) return;
     const file = fileInputRef.current?.files?.[0];
     if (!file || !amount) return;
+    const needsPackage = !data.payment.package;
+    if (needsPackage && !chosenPackage) return;
+    if (needsPackage && chosenPackage === "couple" && !partnerId) return;
+
     setSubmitting(true);
     setSubmitError(null);
     try {
       const form = new FormData();
       form.append("amount", amount);
       form.append("receipt", file);
+      if (needsPackage) {
+        form.append("package", chosenPackage);
+        if (chosenPackage === "couple") form.append("partnerId", partnerId);
+      }
       await apiRequest(`/asoebi-payments/${data.payment._id}/contributions`, {
         method: "POST",
         body: form,
@@ -79,6 +119,7 @@ export function AsoebiPayment() {
   const confirmed = data?.confirmedTotal ?? 0;
   const progressPct = targetAmount > 0 ? Math.min(100, Math.round((confirmed / targetAmount) * 100)) : 0;
   const remaining = Math.max(0, targetAmount - confirmed);
+  const needsPackage = Boolean(data && !data.payment.package);
 
   return (
     <div className="mx-auto max-w-lg px-4 py-16">
@@ -119,6 +160,12 @@ export function AsoebiPayment() {
         <div className="mt-8 space-y-6">
           <div className="rounded-2xl border border-sage/15 bg-white/60 p-6">
             <p className="font-medium">{data.payment.name}</p>
+            {data.payment.package && (
+              <p className="mt-1 font-mono text-xs text-sage">
+                {PACKAGE_LABELS[data.payment.package]}
+                {data.payment.partnerName && ` — paired with ${data.payment.partnerName}`}
+              </p>
+            )}
             {targetAmount > 0 ? (
               <>
                 <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-sage/10">
@@ -170,6 +217,45 @@ export function AsoebiPayment() {
           ) : (
             <form onSubmit={handleSubmitProof} className="rounded-2xl border border-sage/15 bg-white/60 p-5">
               <p className="font-mono text-xs text-terracotta">ADD A PAYMENT</p>
+
+              {needsPackage && (
+                <div className="mt-3 space-y-2">
+                  <label className="block font-mono text-xs text-sage">Which package are you paying for?</label>
+                  {PACKAGE_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => handlePackageSelect(opt.id)}
+                      className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left font-mono text-sm ${
+                        chosenPackage === opt.id ? "border-sage bg-sage text-ivory" : "border-sage/30 text-sage"
+                      }`}
+                    >
+                      <span>{opt.label}</span>
+                      <span className="text-xs opacity-80">{opt.description}</span>
+                    </button>
+                  ))}
+
+                  {chosenPackage === "couple" && (
+                    <div className="mt-2">
+                      <label className="block font-mono text-xs text-sage">Who are you pairing with?</label>
+                      <select
+                        required
+                        value={partnerId}
+                        onChange={(e) => setPartnerId(e.target.value)}
+                        className="mt-1 w-full rounded-lg border border-sage/25 bg-white px-4 py-3 text-sm"
+                      >
+                        <option value="">{loadingPartners ? "Loading…" : "Select a name"}</option>
+                        {partnerOptions.map((p) => (
+                          <option key={p._id} value={p._id}>
+                            {p.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="mt-3">
                 <label className="block font-mono text-xs text-sage">Amount paid</label>
                 <input
@@ -195,7 +281,9 @@ export function AsoebiPayment() {
               {submitError && <p className="mt-2 text-xs text-red-600">{submitError}</p>}
               <button
                 type="submit"
-                disabled={submitting}
+                disabled={
+                  submitting || (needsPackage && (!chosenPackage || (chosenPackage === "couple" && !partnerId)))
+                }
                 className="mt-4 w-full rounded-full bg-terracotta py-3 font-mono text-sm text-ivory disabled:opacity-60"
               >
                 {submitting ? "Submitting…" : "Submit for confirmation"}

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiRequest } from "../../api/client";
-import type { AsoebiContributionWithPayment, AsoebiPaymentWithTotals } from "../../types";
+import type { AsoebiContributionWithPayment, AsoebiPackage, AsoebiPaymentWithTotals } from "../../types";
 
 function formatNaira(n: number) {
   return `₦${n.toLocaleString()}`;
@@ -22,6 +22,12 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]["id"];
 
+const PACKAGE_LABELS: Record<AsoebiPackage, string> = {
+  part: "Part Package",
+  full: "Full Package",
+  couple: "Couples Package",
+};
+
 export function AdminAsoebiPayments() {
   const [payments, setPayments] = useState<AsoebiPaymentWithTotals[]>([]);
   const [pending, setPending] = useState<AsoebiContributionWithPayment[]>([]);
@@ -30,6 +36,8 @@ export function AdminAsoebiPayments() {
   const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<TabId>("all");
+  const [couplePickerId, setCouplePickerId] = useState<string | null>(null);
+  const [couplePartnerChoice, setCouplePartnerChoice] = useState("");
 
   function load() {
     setLoading(true);
@@ -62,6 +70,33 @@ export function AdminAsoebiPayments() {
   async function setGender(id: string, gender: "M" | "F") {
     await apiRequest(`/asoebi-payments/${id}`, { method: "PATCH", admin: true, body: { gender } });
     load();
+  }
+
+  async function setPackage(id: string, pkg: AsoebiPackage | null) {
+    setError(null);
+    try {
+      await apiRequest(`/asoebi-payments/${id}`, { method: "PATCH", admin: true, body: { package: pkg } });
+      load();
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
+
+  async function confirmCouple(id: string) {
+    if (!couplePartnerChoice) return;
+    setError(null);
+    try {
+      await apiRequest(`/asoebi-payments/${id}`, {
+        method: "PATCH",
+        admin: true,
+        body: { package: "couple", partnerId: couplePartnerChoice },
+      });
+      setCouplePickerId(null);
+      setCouplePartnerChoice("");
+      load();
+    } catch (e) {
+      setError((e as Error).message);
+    }
   }
 
   async function decide(id: string, decision: "approve" | "reject") {
@@ -187,6 +222,10 @@ export function AdminAsoebiPayments() {
                     </div>
                     <p className="font-mono text-xs text-ink/50">{p.phone}</p>
                     <p className="mt-0.5 font-mono text-xs text-ink/40">Added {formatDate(p.createdAt)}</p>
+                    <p className="mt-0.5 font-mono text-xs text-sage">
+                      {p.package ? PACKAGE_LABELS[p.package] : "No package chosen yet"}
+                      {p.partnerName && ` — paired with ${p.partnerName}`}
+                    </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
@@ -207,10 +246,75 @@ export function AdminAsoebiPayments() {
                     </button>
                   </div>
                 </div>
+
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={() => setPackage(p._id, "part")}
+                    className={`rounded-full px-3 py-1 font-mono text-xs ${
+                      p.package === "part" ? "bg-sage text-ivory" : "border border-sage/30 text-sage"
+                    }`}
+                  >
+                    Part
+                  </button>
+                  <button
+                    onClick={() => setPackage(p._id, "full")}
+                    className={`rounded-full px-3 py-1 font-mono text-xs ${
+                      p.package === "full" ? "bg-sage text-ivory" : "border border-sage/30 text-sage"
+                    }`}
+                  >
+                    Full
+                  </button>
+                  <button
+                    onClick={() => {
+                      setCouplePickerId(couplePickerId === p._id ? null : p._id);
+                      setCouplePartnerChoice("");
+                    }}
+                    className={`rounded-full px-3 py-1 font-mono text-xs ${
+                      p.package === "couple" ? "bg-sage text-ivory" : "border border-sage/30 text-sage"
+                    }`}
+                  >
+                    Couple
+                  </button>
+                  {p.package && (
+                    <button
+                      onClick={() => setPackage(p._id, null)}
+                      className="font-mono text-[10px] text-ink/40 underline"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+
+                {couplePickerId === p._id && (
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <select
+                      value={couplePartnerChoice}
+                      onChange={(e) => setCouplePartnerChoice(e.target.value)}
+                      className="rounded-lg border border-sage/25 bg-white px-3 py-1.5 text-sm"
+                    >
+                      <option value="">Pair with…</option>
+                      {payments
+                        .filter((other) => other._id !== p._id)
+                        .map((other) => (
+                          <option key={other._id} value={other._id}>
+                            {other.name}
+                          </option>
+                        ))}
+                    </select>
+                    <button
+                      onClick={() => confirmCouple(p._id)}
+                      disabled={!couplePartnerChoice}
+                      className="rounded-md border border-sage/30 px-3 py-1.5 font-mono text-xs text-sage hover:bg-sage/10 disabled:opacity-50"
+                    >
+                      Link
+                    </button>
+                  </div>
+                )}
+
                 <p className="mt-2 font-mono text-xs text-ink/60">
                   {p.targetAmount > 0
                     ? `${formatNaira(p.confirmedTotal)} of ${formatNaira(p.targetAmount)} confirmed`
-                    : "Gender not set — no target yet"}
+                    : "No target yet"}
                   {p.pendingCount > 0 && ` · ${p.pendingCount} pending`}
                 </p>
                 <button

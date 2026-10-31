@@ -16,11 +16,13 @@ import { hotelReservationsRouter } from "./routes/hotelReservations";
 import { asoebiPaymentsRouter } from "./routes/asoebiPayments";
 import { seedPhoneGuests } from "./seed/phoneGuests";
 import { seedAsoebiPayments } from "./seed/asoebiPayments";
+import { backfillAsoebiPackages } from "./seed/asoebiPackageBackfill";
 
 async function main() {
   await connectDb();
   await seedPhoneGuests();
   await seedAsoebiPayments();
+  await backfillAsoebiPackages();
 
   const app = express();
   app.use(cors({ origin: env.clientOrigin }));

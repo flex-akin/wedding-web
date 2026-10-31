@@ -138,11 +138,16 @@ export interface PaymentModeInfo {
   paystackPublicKey?: string;
 }
 
+export type AsoebiPackage = "part" | "full" | "couple";
+
 export interface AsoebiPayment {
   _id: string;
   name: string;
   phone: string;
   gender: "M" | "F" | null;
+  package: AsoebiPackage | null;
+  partnerId?: string | null;
+  partnerName?: string | null;
   targetAmount: number;
   guestId?: string;
   createdAt: string;
@@ -151,6 +156,11 @@ export interface AsoebiPayment {
 export interface AsoebiPaymentWithTotals extends AsoebiPayment {
   confirmedTotal: number;
   pendingCount: number;
+}
+
+export interface AsoebiPartnerOption {
+  _id: string;
+  name: string;
 }
 
 export interface AsoebiContribution {
