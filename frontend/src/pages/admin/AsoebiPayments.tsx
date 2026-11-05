@@ -104,6 +104,16 @@ export function AdminAsoebiPayments() {
     load();
   }
 
+  async function toggleClothesReceived(id: string, clothesReceived: boolean) {
+    setPayments((prev) => prev.map((p) => (p._id === id ? { ...p, clothesReceived } : p)));
+    try {
+      await apiRequest(`/asoebi-payments/${id}`, { method: "PATCH", admin: true, body: { clothesReceived } });
+    } catch (e) {
+      setError((e as Error).message);
+      load();
+    }
+  }
+
   async function handleDelete(id: string) {
     if (!confirm("Remove this contributor and their submissions?")) return;
     await apiRequest(`/asoebi-payments/${id}`, { method: "DELETE", admin: true });
@@ -111,6 +121,11 @@ export function AdminAsoebiPayments() {
   }
 
   const paidCount = useMemo(() => payments.filter(isPaid).length, [payments]);
+  const paidPayments = useMemo(() => payments.filter(isPaid), [payments]);
+  const clothesReceivedCount = useMemo(
+    () => paidPayments.filter((p) => p.clothesReceived).length,
+    [paidPayments]
+  );
   const filteredPayments = useMemo(() => {
     if (tab === "paid") return payments.filter(isPaid);
     if (tab === "unpaid") return payments.filter((p) => !isPaid(p));
@@ -330,6 +345,51 @@ export function AdminAsoebiPayments() {
             <p className="text-sm text-ink/40">
               {payments.length === 0 ? "No contributors yet." : "Nobody in this tab yet."}
             </p>
+          )}
+        </div>
+      </section>
+
+      <section className="mt-8">
+        <h2 className="font-mono text-sm text-terracotta">
+          Clothes Collection · {clothesReceivedCount} of {paidPayments.length} collected
+        </h2>
+        <div className="mt-3 overflow-x-auto rounded-xl border border-sage/15 bg-white/60">
+          <table className="w-full min-w-[480px] text-left text-sm">
+            <thead>
+              <tr className="border-b border-sage/15 font-mono text-xs text-ink/50">
+                <th className="px-4 py-2">Name</th>
+                <th className="px-4 py-2">Phone</th>
+                <th className="px-4 py-2">Package</th>
+                <th className="px-4 py-2">Clothes received</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paidPayments.map((p) => (
+                <tr key={p._id} className="border-b border-sage/10 last:border-0">
+                  <td className="px-4 py-2">{p.name}</td>
+                  <td className="px-4 py-2 font-mono text-xs text-ink/50">{p.phone}</td>
+                  <td className="px-4 py-2 font-mono text-xs text-sage">
+                    {p.package ? PACKAGE_LABELS[p.package] : "—"}
+                  </td>
+                  <td className="px-4 py-2">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={p.clothesReceived}
+                        onChange={(e) => toggleClothesReceived(p._id, e.target.checked)}
+                        className="h-4 w-4 accent-sage"
+                      />
+                      <span className="font-mono text-xs text-ink/60">
+                        {p.clothesReceived ? "Received" : "Not yet"}
+                      </span>
+                    </label>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {!loading && paidPayments.length === 0 && (
+            <p className="px-4 py-4 text-sm text-ink/40">No one has fully paid yet.</p>
           )}
         </div>
       </section>

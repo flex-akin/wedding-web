@@ -148,6 +148,7 @@ export interface AsoebiPayment {
   package: AsoebiPackage | null;
   partnerId?: string | null;
   partnerName?: string | null;
+  clothesReceived: boolean;
   targetAmount: number;
   guestId?: string;
   createdAt: string;

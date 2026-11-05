@@ -116,6 +116,29 @@ export function AdminGuests() {
     load();
   }
 
+  async function updateAttendance(
+    guest: Guest,
+    field: "attendingCeremony" | "attendingReception",
+    value: boolean
+  ) {
+    const attendingCeremony = field === "attendingCeremony" ? value : guest.attendingCeremony;
+    const attendingReception = field === "attendingReception" ? value : guest.attendingReception;
+    const rsvpStatus = attendingCeremony || attendingReception ? "attending" : "declined";
+    setGuests((prev) =>
+      prev.map((g) => (g._id === guest._id ? { ...g, attendingCeremony, attendingReception, rsvpStatus } : g))
+    );
+    try {
+      await apiRequest(`/guests/${guest._id}`, {
+        method: "PATCH",
+        admin: true,
+        body: { attendingCeremony, attendingReception, rsvpStatus },
+      });
+    } catch (e) {
+      setError((e as Error).message);
+      load();
+    }
+  }
+
   return (
     <div>
       <h1 className="text-2xl">Guests</h1>
@@ -206,18 +229,33 @@ export function AdminGuests() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  {guest.rsvpStatus === "attending" && (
-                    <span className="rounded-full bg-white px-2 py-1 font-mono text-[10px] text-ink/60">
-                      {[guest.attendingCeremony && "Garden", guest.attendingReception && "Engagement"]
-                        .filter(Boolean)
-                        .join(" + ")}
-                    </span>
-                  )}
                   <span className={`rounded-full px-3 py-1 font-mono text-xs ${statusColors[guest.rsvpStatus]}`}>
                     {guest.rsvpStatus}
                   </span>
                 </div>
               </div>
+
+              {guest.rsvpStatus !== "pending" && (
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <span className="font-mono text-[10px] text-ink/40">ATTENDING</span>
+                  <button
+                    onClick={() => updateAttendance(guest, "attendingCeremony", !guest.attendingCeremony)}
+                    className={`rounded-full px-3 py-1 font-mono text-xs ${
+                      guest.attendingCeremony ? "bg-sage text-ivory" : "border border-sage/30 text-sage"
+                    }`}
+                  >
+                    Garden Wedding {guest.attendingCeremony ? "✓" : ""}
+                  </button>
+                  <button
+                    onClick={() => updateAttendance(guest, "attendingReception", !guest.attendingReception)}
+                    className={`rounded-full px-3 py-1 font-mono text-xs ${
+                      guest.attendingReception ? "bg-terracotta text-ivory" : "border border-terracotta/30 text-terracotta"
+                    }`}
+                  >
+                    Engagement {guest.attendingReception ? "✓" : ""}
+                  </button>
+                </div>
+              )}
 
               <div className="mt-3 flex flex-wrap gap-2">
                 <CopyButton value={link} label="Copy RSVP link" />

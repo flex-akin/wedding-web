@@ -33,6 +33,7 @@ const asoebiPaymentSchema = new Schema(
     package: { type: String, enum: ["part", "full", "couple", null], default: null },
     partnerId: { type: Schema.Types.ObjectId, ref: "AsoebiPayment", default: null },
     guestId: { type: Schema.Types.ObjectId, ref: "Guest" },
+    clothesReceived: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

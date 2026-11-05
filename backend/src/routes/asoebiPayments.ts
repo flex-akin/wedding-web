@@ -189,11 +189,12 @@ asoebiPaymentsRouter.post("/", requireAdmin, async (req, res) => {
 
 // Admin: update a contributor (gender, name, or package/partner)
 asoebiPaymentsRouter.patch("/:id", requireAdmin, async (req, res) => {
-  const { gender, name, package: pkg, partnerId } = req.body as {
+  const { gender, name, package: pkg, partnerId, clothesReceived } = req.body as {
     gender?: "M" | "F" | null;
     name?: string;
     package?: PackageType | null;
     partnerId?: string | null;
+    clothesReceived?: boolean;
   };
 
   const payment = await AsoebiPaymentModel.findById(req.params.id);
@@ -201,6 +202,7 @@ asoebiPaymentsRouter.patch("/:id", requireAdmin, async (req, res) => {
 
   if (name !== undefined) payment.name = name;
   if (gender !== undefined) payment.gender = gender;
+  if (clothesReceived !== undefined) payment.clothesReceived = clothesReceived;
 
   if (pkg === "couple" && partnerId) {
     try {
