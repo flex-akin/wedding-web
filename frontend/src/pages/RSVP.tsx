@@ -100,14 +100,7 @@ export function RSVP() {
               <div className="rounded-2xl border border-sage/20 bg-white/70 p-8">
                 <p className="text-xl">Thank you for RSVPing. See you there! 🎉</p>
               </div>
-              {settings && (
-                <AccessCard
-                  guest={guest}
-                  partnerOneName={settings.partnerOneName}
-                  partnerTwoName={settings.partnerTwoName}
-                  weddingDate={settings.weddingDate}
-                />
-              )}
+              <AccessCard guest={guest} />
             </>
           ) : (
             <div className="rounded-2xl border border-sage/20 bg-white/70 p-8">

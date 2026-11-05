@@ -1,40 +1,47 @@
-import { useRef, useState } from "react";
-import Barcode from "react-barcode";
+import { useEffect, useRef, useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
 import { toPng } from "html-to-image";
 import type { Guest } from "../types";
 
 interface AccessCardProps {
   guest: Guest;
-  partnerOneName: string;
-  partnerTwoName: string;
-  weddingDate?: string;
 }
 
-function eventLabel(guest: Guest): string {
-  if (guest.attendingCeremony && guest.attendingReception) return "Vows & Engagement";
-  if (guest.attendingCeremony) return "Vows";
-  if (guest.attendingReception) return "Engagement";
-  return "";
-}
+// Matches the native resolution of the back-page artwork
+// (frontend/public/images/access-card-*.png), so the front page we generate
+// comes out the same size when downloaded.
+const TEMPLATE_WIDTH = 2100;
+const TEMPLATE_HEIGHT = 1200;
 
-function formatDate(iso?: string) {
-  if (!iso) return "";
-  return new Date(iso).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" });
-}
-
-export function AccessCard({ guest, partnerOneName, partnerTwoName, weddingDate }: AccessCardProps) {
+export function AccessCard({ guest }: AccessCardProps) {
   const frontRef = useRef<HTMLDivElement>(null);
-  const backRef = useRef<HTMLDivElement>(null);
+  const [frontWidth, setFrontWidth] = useState(0);
   const [downloading, setDownloading] = useState<"front" | "back" | null>(null);
-  const label = eventLabel(guest);
 
-  async function download(ref: React.RefObject<HTMLDivElement | null>, filename: string, which: "front" | "back") {
-    if (!ref.current) return;
-    setDownloading(which);
+  useEffect(() => {
+    const el = frontRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      const w = entries[0]?.contentRect.width;
+      if (w) setFrontWidth(w);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const bothEvents = guest.attendingCeremony && guest.attendingReception;
+  // access-card-1 covers Vows + Engagement; access-card-2 covers everyone else.
+  const backTemplate = bothEvents ? "/images/access-card-1.png" : "/images/access-card-2.png";
+  const scale = frontWidth > 0 ? frontWidth / TEMPLATE_WIDTH : 0;
+
+  async function downloadFront() {
+    if (!frontRef.current) return;
+    setDownloading("front");
     try {
-      const dataUrl = await toPng(ref.current, { pixelRatio: 3 });
+      const pixelRatio = frontWidth > 0 ? TEMPLATE_WIDTH / frontWidth : 3;
+      const dataUrl = await toPng(frontRef.current, { pixelRatio, backgroundColor: "#ffffff" });
       const link = document.createElement("a");
-      link.download = filename;
+      link.download = `${guest.slug}-access-card-front.png`;
       link.href = dataUrl;
       link.click();
     } finally {
@@ -42,31 +49,41 @@ export function AccessCard({ guest, partnerOneName, partnerTwoName, weddingDate 
     }
   }
 
-  if (!label) return null;
+  async function downloadBack() {
+    setDownloading("back");
+    try {
+      const link = document.createElement("a");
+      link.href = backTemplate;
+      link.download = `${guest.slug}-access-card-back.png`;
+      link.click();
+    } finally {
+      setDownloading(null);
+    }
+  }
+
+  if (!guest.attendingCeremony && !guest.attendingReception) return null;
 
   return (
-    <div className="mx-auto mt-8 flex w-full max-w-85 flex-col items-center gap-8">
+    <div className="mx-auto mt-8 flex w-full max-w-2xl flex-col gap-8">
       <div className="w-full">
         <div
           ref={frontRef}
-          className="flex aspect-[85.6/53.98] w-full flex-col justify-between rounded-2xl bg-sage p-5 text-ivory shadow-xl"
+          className="relative flex w-full flex-col items-center justify-center gap-[3%] bg-white px-[6%] py-[6%] shadow-xl"
+          style={{ aspectRatio: `${TEMPLATE_WIDTH} / ${TEMPLATE_HEIGHT}` }}
         >
-          <div>
-            <p className="font-mono text-[10px] tracking-wide text-ivory/60">ACCESS CARD</p>
-            <p className="font-display text-lg">
-              {partnerOneName} &amp; {partnerTwoName}
-            </p>
-          </div>
-          <div>
-            <p className="text-xl leading-tight font-medium">{guest.name}</p>
-            <span className="mt-2 inline-block rounded-full bg-ivory/15 px-3 py-1 font-mono text-[10px] tracking-wide">
-              {label.toUpperCase()}
-            </span>
-          </div>
-          <p className="font-mono text-[10px] text-ivory/60">{formatDate(weddingDate)}</p>
+          <p className="font-mono tracking-[0.3em] text-sage" style={{ fontSize: 22 * scale }}>
+            ACCESS CARD
+          </p>
+          <p
+            className="text-center font-display leading-tight text-ink"
+            style={{ fontSize: 88 * scale }}
+          >
+            {guest.name}
+          </p>
+          <QRCodeSVG value={`${window.location.origin}/rsvp/${guest.slug}`} size={300 * scale} />
         </div>
         <button
-          onClick={() => download(frontRef, `${guest.slug}-access-card-front.png`, "front")}
+          onClick={downloadFront}
           disabled={downloading === "front"}
           className="mt-2 w-full rounded-full border border-sage/30 py-2 font-mono text-xs text-sage hover:bg-sage/10 disabled:opacity-60"
         >
@@ -75,17 +92,9 @@ export function AccessCard({ guest, partnerOneName, partnerTwoName, weddingDate 
       </div>
 
       <div className="w-full">
-        <div
-          ref={backRef}
-          className="flex aspect-[85.6/53.98] w-full flex-col items-center justify-center gap-2 rounded-2xl border-4 border-sage/10 bg-white p-5 shadow-xl"
-        >
-          <div className="w-full [&>svg]:h-auto [&>svg]:w-full">
-            <Barcode value={guest.name} renderer="svg" format="CODE128" width={1.2} height={45} fontSize={11} margin={0} />
-          </div>
-          <p className="font-mono text-[10px] text-ink/40">Present this at entry.</p>
-        </div>
+        <img src={backTemplate} alt="Access card back" className="w-full shadow-xl" draggable={false} />
         <button
-          onClick={() => download(backRef, `${guest.slug}-access-card-back.png`, "back")}
+          onClick={downloadBack}
           disabled={downloading === "back"}
           className="mt-2 w-full rounded-full border border-sage/30 py-2 font-mono text-xs text-sage hover:bg-sage/10 disabled:opacity-60"
         >
