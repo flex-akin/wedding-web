@@ -68,19 +68,24 @@ export function AccessCard({ guest }: AccessCardProps) {
       <div className="w-full">
         <div
           ref={frontRef}
-          className="relative flex w-full flex-col items-center justify-center gap-[3%] bg-white px-[6%] py-[6%] shadow-xl"
-          style={{ aspectRatio: `${TEMPLATE_WIDTH} / ${TEMPLATE_HEIGHT}` }}
+          className="relative flex w-full flex-col items-center justify-center bg-white px-[6%] py-[6%] shadow-xl"
+          style={{ aspectRatio: `${TEMPLATE_WIDTH} / ${TEMPLATE_HEIGHT}`, gap: 28 * scale }}
         >
-          <p className="font-mono tracking-[0.3em] text-sage" style={{ fontSize: 22 * scale }}>
+          <p className="font-mono font-medium tracking-tight whitespace-nowrap" style={{ fontSize: 42 * scale }}>
+            <span className="text-terracotta">{"<"}</span>
+            <span className="text-sage">Flora &amp; Felix</span>
+            <span className="text-terracotta"> {"/>"}</span>
+          </p>
+          <p className="font-mono tracking-[0.3em] text-sage" style={{ fontSize: 20 * scale }}>
             ACCESS CARD
           </p>
+          <QRCodeSVG value={`${window.location.origin}/rsvp/${guest.slug}`} size={420 * scale} />
           <p
-            className="text-center font-display leading-tight text-ink"
-            style={{ fontSize: 88 * scale }}
+            className="text-center font-mono tracking-[0.2em] text-ink/40 uppercase"
+            style={{ fontSize: 32 * scale }}
           >
             {guest.name}
           </p>
-          <QRCodeSVG value={`${window.location.origin}/rsvp/${guest.slug}`} size={300 * scale} />
         </div>
         <button
           onClick={downloadFront}
