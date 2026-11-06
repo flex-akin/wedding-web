@@ -26,7 +26,7 @@ guestsRouter.get("/lookup", async (req, res) => {
   const matches = await GuestModel.find({
     $or: [{ name: new RegExp(escaped, "i") }, ...(phoneCandidate ? [{ phone: phoneCandidate }] : [])],
   })
-    .select("name slug")
+    .select("name slug rsvpStatus")
     .limit(10);
 
   let rejected = false;

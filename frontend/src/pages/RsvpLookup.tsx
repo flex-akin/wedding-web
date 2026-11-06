@@ -6,6 +6,7 @@ import { NameFields, joinName } from "../components/NameFields";
 interface GuestMatch {
   name: string;
   slug: string;
+  rsvpStatus: "pending" | "attending" | "declined";
 }
 
 interface LookupResponse {
@@ -96,7 +97,9 @@ export function RsvpLookup() {
                 className="block rounded-2xl border border-sage/15 bg-white/60 p-4 text-center transition-transform hover:scale-[1.02]"
               >
                 <span className="font-medium">{guest.name}</span>
-                <span className="block font-mono text-xs text-terracotta">Tap to RSVP →</span>
+                <span className="block font-mono text-xs text-terracotta">
+                  {guest.rsvpStatus === "pending" ? "Tap to RSVP →" : "Tap to RSVP again →"}
+                </span>
               </Link>
             ))}
 
