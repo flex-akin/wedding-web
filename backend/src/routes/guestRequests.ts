@@ -45,12 +45,19 @@ guestRequestsRouter.patch("/:id/approve", requireAdmin, async (req, res) => {
   if (!request) return res.status(404).json({ error: "Request not found" });
   if (request.status !== "pending") return res.status(400).json({ error: "Request already resolved" });
 
+  // Approving a self-requested guest means they're confirmed to attend —
+  // skip the extra step of having them RSVP again for something they
+  // already asked to be added for.
   const slug = await uniqueGuestSlug(slugify(request.name));
   const guest = await GuestModel.create({
     name: request.name,
     slug,
     partySize: 1,
     phone: request.phone,
+    rsvpStatus: "attending",
+    attendingCeremony: true,
+    attendingReception: true,
+    respondedAt: new Date(),
   });
 
   request.status = "approved";
