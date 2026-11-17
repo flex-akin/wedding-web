@@ -18,6 +18,7 @@ import { seedPhoneGuests } from "./seed/phoneGuests";
 import { seedAsoebiPayments } from "./seed/asoebiPayments";
 import { backfillAsoebiPackages } from "./seed/asoebiPackageBackfill";
 import { backfillApprovedGuestRequests } from "./seed/approvedGuestRequestsBackfill";
+import { backfillDefaultEngagement } from "./seed/defaultEngagementBackfill";
 
 async function main() {
   await connectDb();
@@ -25,6 +26,7 @@ async function main() {
   await seedAsoebiPayments();
   await backfillAsoebiPackages();
   await backfillApprovedGuestRequests();
+  await backfillDefaultEngagement();
 
   const app = express();
   app.use(cors({ origin: env.clientOrigin }));

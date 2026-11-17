@@ -31,7 +31,9 @@ export function RSVP() {
         setFirstName(g.name.split(" ")[0] ?? "");
         setLastName(g.name.split(" ").slice(1).join(" "));
         setAttendingCeremony(g.attendingCeremony);
-        setAttendingReception(g.attendingReception);
+        // Engagement defaults to checked for a first-time response; once a
+        // guest has actually responded, respect whatever they chose.
+        setAttendingReception(g.rsvpStatus === "pending" ? true : g.attendingReception);
         setPlusOneNames(g.plusOnes.map((p) => p.name));
         setNotes(g.notes ?? "");
       })
