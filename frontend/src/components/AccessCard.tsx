@@ -68,8 +68,8 @@ export function AccessCard({ guest }: AccessCardProps) {
           </p>
           <QRCodeSVG value={`${window.location.origin}/rsvp/${guest.slug}`} size={420 * scale} />
           <p
-            className="text-center font-mono tracking-[0.2em] text-ink/40 uppercase"
-            style={{ fontSize: 35 * scale }}
+            className="text-center font-mono font-bold tracking-[0.2em] text-ink uppercase"
+            style={{ fontSize: 40 * scale }}
           >
             {guest.name}
           </p>
